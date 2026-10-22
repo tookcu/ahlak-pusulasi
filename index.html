@@ -749,6 +749,33 @@
         .decision-title { font-weight: 600; font-size: 14px; }
         .decision-text { font-size: 13.5px; line-height: 1.55; color: var(--text-2); }
         .decision-text strong { color: var(--text); font-weight: 600; }
+        .decision-crowd { margin-top: 8px; font-size: 12.5px; font-weight: 600; color: var(--brand-2); }
+
+        /* Ortak istatistik: karar sonrası "aynı kararı verenler" etiketi (kartın üstünde, yer kaplamaz) */
+        .social-pill {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            z-index: 5;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(18, 26, 44, 0.94);
+            border: 1px solid rgba(221, 178, 98, 0.5);
+            box-shadow: 0 12px 30px -12px rgba(0, 0, 0, 0.75);
+            font-size: 13px;
+            color: var(--text-2);
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transform: translate(-50%, -6px);
+            transition: opacity 0.25s, transform 0.3s var(--ease-out);
+        }
+        .social-pill svg { width: 16px; height: 16px; color: var(--brand-2); }
+        .social-pill strong { font-family: var(--font-display); font-size: 15px; color: var(--brand-2); }
+        .social-pill.is-visible { opacity: 1; transform: translate(-50%, 0); }
         .empty-note { font-size: 13.5px; color: var(--text-3); padding: 16px; border: 1px dashed var(--line-2); border-radius: var(--r-lg); }
 
         /* Sertifika */
@@ -857,6 +884,7 @@
         .q-item-title { font-weight: 600; font-size: 13.5px; }
         .q-item-title span { color: var(--text-3); font-family: var(--font-display); margin-right: 6px; }
         .q-item-sub { font-size: 12px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        code { font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace; font-size: 0.92em; padding: 1px 6px; border-radius: 6px; background: rgba(255, 255, 255, 0.06); color: var(--text-2); }
         .subtle-box { padding: 18px; border-radius: var(--r-lg); border: 1px solid var(--line); background: rgba(255, 255, 255, 0.02); }
         .mt-12 { margin-top: 12px; }
 
@@ -1121,6 +1149,7 @@
                 </button>
 
                 <div class="card-stack">
+                    <div id="socialPill" class="social-pill" role="status" aria-live="polite"></div>
                     <article id="decisionCard" class="dilemma-card">
                         <div class="card-media">
                             <div id="cardIllustration" class="card-icon"></div>
@@ -1243,7 +1272,7 @@
                 <div class="section-head">
                     <div>
                         <h3 class="panel-title">Stant genel dağılımı</h3>
-                        <p class="panel-sub">Bu cihazda pusulasını tamamlayan ziyaretçilerin baskın filozofları</p>
+                        <p id="standPanelSub" class="panel-sub">Bu cihazda pusulasını tamamlayan ziyaretçilerin baskın filozofları</p>
                     </div>
                     <span class="count-pill">Toplam <strong id="resultTotalVisitors">0</strong> katılımcı</span>
                 </div>
@@ -1301,6 +1330,13 @@
                     </div>
                 </div>
                 <div id="adminQuestionList" class="q-list"></div>
+            </section>
+
+            <section class="subtle-box">
+                <h4 class="section-title">Ortak canlı istatistik</h4>
+                <p id="sharedStatusText" class="modal-sub"></p>
+                <p class="modal-sub mt-12">Tüm cihazların kayıtları Supabase panelinden yönetilir; fuardan önce deneme kayıtlarını
+                    silmek için <code>supabase/schema.sql</code> dosyasının sonundaki komutu kullanın.</p>
             </section>
 
             <section class="subtle-box">
@@ -2112,6 +2148,134 @@
         }
 
         /* =====================================================================
+           4b. ORTAK CANLI İSTATİSTİK (Supabase)
+           Tüm cihazların (kiosk + ziyaretçi telefonları) sonuçları tek veritabanında toplanır.
+           Adres ve "publishable" anahtar herkese açık olacak şekilde tasarlanmıştır: veritabanında
+           tablolar kapalıdır, yalnızca submit_game ve get_stats fonksiyonları çağrılabilir
+           (bkz. supabase/schema.sql). Kişisel veri gönderilmez. url boş bırakılırsa özellik kapanır.
+           ===================================================================== */
+        const SHARED_STATS = {
+            url: 'https://ujsixenkmskagvktloim.supabase.co',
+            key: 'sb_publishable_oDWkvvruE--IFVVu-cVq-w_SD_kN3rM',
+            // "Ziyaretçilerin %X'i aynı kararı verdi" en az bu kadar yanıt birikince gösterilir
+            minSampleForComparison: 5
+        };
+
+        // Soru/filozof verisinin parmak izi. Ekip verisi değişince istatistik yeni sürüm olarak
+        // ayrı tutulur; eski sorulara verilen yanıtlar yenileriyle karışmaz.
+        const CONTENT_VERSION = (() => {
+            const text = JSON.stringify([
+                PHILOSOPHER_LIST.map(p => p.id),
+                DEFAULT_QUESTIONS.map(q => [q.id, q.left.label, q.left.scores, q.right.label, q.right.scores])
+            ]);
+            let hash = 0x811c9dc5;   // FNV-1a
+            for (let i = 0; i < text.length; i++) {
+                hash ^= text.charCodeAt(i);
+                hash = Math.imul(hash, 0x01000193);
+            }
+            return `v1-${(hash >>> 0).toString(16)}`;
+        })();
+
+        const sharedStats = {
+            enabled: !!(SHARED_STATS.url && SHARED_STATS.key),
+            data: null,         // son alınan toplu sayılar: { games, dominant: {id: n}, choices: {soruId: {left, right}} }
+            lastError: '',
+            flushing: false,
+            QUEUE_KEY: 'dap_pending_games_v1',
+
+            async rpc(name, body, timeoutMs = 6000) {
+                const headers = { 'Content-Type': 'application/json', apikey: SHARED_STATS.key };
+                // Eski tip (JWT) anahtarlar Authorization başlığında da beklenir; yeni publishable anahtarlar beklenmez
+                if (SHARED_STATS.key.startsWith('eyJ')) headers.Authorization = `Bearer ${SHARED_STATS.key}`;
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), timeoutMs);
+                try {
+                    const res = await fetch(`${SHARED_STATS.url}/rest/v1/rpc/${name}`, {
+                        method: 'POST', headers, body: JSON.stringify(body), signal: controller.signal
+                    });
+                    if (!res.ok) {
+                        const err = new Error(`${name}: HTTP ${res.status}`);
+                        err.status = res.status;
+                        throw err;
+                    }
+                    const text = await res.text();
+                    return text ? JSON.parse(text) : null;
+                } finally {
+                    clearTimeout(timer);
+                }
+            },
+
+            async refresh() {
+                if (!this.enabled) return null;
+                try {
+                    this.data = await this.rpc('get_stats', { p_version: CONTENT_VERSION });
+                    this.lastError = '';
+                } catch (e) {
+                    this.lastError = e.message;
+                    console.warn('Ortak istatistik alınamadı:', e.message);
+                }
+                return this.data;
+            },
+
+            // Biten oyunu önce cihazdaki kuyruğa yazar, sonra göndermeyi dener.
+            // Bağlantı yoksa kayıt kaybolmaz; internet gelince (ya da sayfa yeniden açılınca) gönderilir.
+            async submit(game) {
+                if (!this.enabled) return false;
+                const queue = this.readQueue();
+                queue.push(game);
+                this.writeQueue(queue.slice(-200));
+                return this.flush();
+            },
+
+            async flush() {
+                if (!this.enabled || this.flushing) return false;
+                this.flushing = true;
+                let sent = false;
+                try {
+                    let queue = this.readQueue();
+                    while (queue.length) {
+                        try {
+                            await this.rpc('submit_game', { payload: queue[0] });
+                            sent = true;
+                        } catch (e) {
+                            // Veritabanının içeriğini reddettiği kayıt (400/409/422) kuyruğu sonsuza dek tıkamasın.
+                            // Ağ hatası, eksik şema (404) ya da anahtar sorunu (401/403) ise kayıt bekletilir.
+                            const rejected = [400, 409, 422].includes(e.status);
+                            if (!rejected) throw e;
+                            console.warn('Geçersiz kayıt atlandı:', e.message);
+                        }
+                        queue = queue.slice(1);
+                        this.writeQueue(queue);
+                    }
+                    this.lastError = '';
+                } catch (e) {
+                    this.lastError = e.message;
+                    console.warn('Sonuç gönderilemedi, bağlantı gelince yeniden denenecek:', e.message);
+                } finally {
+                    this.flushing = false;
+                }
+                return sent;
+            },
+
+            readQueue() {
+                try { return JSON.parse(localStorage.getItem(this.QUEUE_KEY) || '[]'); } catch (e) { return []; }
+            },
+
+            writeQueue(queue) {
+                try { localStorage.setItem(this.QUEUE_KEY, JSON.stringify(queue)); } catch (e) {}
+            },
+
+            // Bir sorunun (verideki özgün) sol/sağ seçeneğini daha önce seçenlerin yüzdesi; veri azsa null
+            choicePercent(questionId, side) {
+                const counts = this.data && this.data.choices && this.data.choices[String(questionId)];
+                if (!counts) return null;
+                const total = (Number(counts.left) || 0) + (Number(counts.right) || 0);
+                if (total < SHARED_STATS.minSampleForComparison) return null;
+                return Math.round(((Number(counts[side]) || 0) / total) * 100);
+            }
+        };
+
+        /* =====================================================================
            5. GÖRSEL ÜRETİCİLER: İKONLAR, MADALYONLAR, PUSULA
            ===================================================================== */
         const ICONS = {
@@ -2330,7 +2494,29 @@
                 this.setupKeyboardListeners();
                 this.setupFullscreenListener();
                 this.setupWebFeatures();
+                this.setupSharedStats();
                 this.checkUrlCertificateParams();
+            },
+
+            // Ortak istatistik: açılışta bekleyen sonuçları gönder ve sayıları al; internet geri gelince
+            // tekrar dene; karşılama ekranında beklerken sayıları dakikada bir tazele.
+            setupSharedStats() {
+                if (!sharedStats.enabled) return;
+                const sync = () => sharedStats.flush()
+                    .then(() => sharedStats.refresh())
+                    .then(() => this.updateFairStatsUI());
+                sync();
+                window.addEventListener('online', sync);
+                setInterval(() => {
+                    if (this.currentScreen === 'welcome' && !document.hidden) sync();
+                }, 60000);
+            },
+
+            // Sonucun nereden geldiği (rapor için): stant cihazı mı, ziyaretçinin kendi cihazı mı?
+            // Dosyadan açılmış, kurulu uygulama (PWA) ya da tam ekran kiosk modu → stant cihazı.
+            deviceSource() {
+                const installed = window.matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches;
+                return (!IS_ONLINE_HOST || installed || document.fullscreenElement) ? 'kiosk' : 'web';
             },
 
             // Yalnızca web'de yayındayken: kurulabilir uygulama (PWA) ve çevrimdışı önbellek.
@@ -2428,6 +2614,8 @@
                 this.isAnimatingCard = false;
 
                 document.getElementById('totalQNum').textContent = this.deck.length;
+                this.hideSocialPill();
+                sharedStats.refresh();   // karşılaştırmalar için en güncel sayılar (beklemeden; gelince kullanılır)
                 this.renderHud();
                 this.updateMeters();
                 this.renderCurrentCard();
@@ -2443,7 +2631,8 @@
                     const j = Math.floor(Math.random() * (i + 1));
                     [flips[i], flips[j]] = [flips[j], flips[i]];
                 }
-                return this.questions.map((q, i) => (flips[i] ? { ...q, left: q.right, right: q.left } : q));
+                // flipped: istatistiğe kararın ekrandaki değil verideki özgün tarafını yazmak için
+                return this.questions.map((q, i) => (flips[i] ? { ...q, left: q.right, right: q.left, flipped: true } : q));
             },
 
             // Sıradaki ziyaretçi için tüm kişisel durumu temizler ve karşılama ekranına döner
@@ -2465,6 +2654,7 @@
                 this.closePinModal();
                 this.closeAdminModal();
                 this.closePhonePlay();
+                this.hideSocialPill();
                 // Sertifika bağlantısıyla açılmışsa ad ve sonuçları adres çubuğundan da temizle
                 if (window.location.search || window.location.hash) {
                     try { history.replaceState(null, '', window.location.pathname); } catch (e) {}
@@ -2517,6 +2707,27 @@
                 });
                 document.getElementById('optionLeft').classList.toggle('is-active', direction === 'left');
                 document.getElementById('optionRight').classList.toggle('is-active', direction === 'right');
+            },
+
+            // Karar sonrası kısa geri bildirim: bu kararı daha önce verenlerin oranı (yeterli veri yoksa gösterilmez)
+            showSocialPill(percent) {
+                const pill = document.getElementById('socialPill');
+                clearTimeout(this.socialPillTimer);
+                if (percent === null || percent === undefined) {
+                    pill.classList.remove('is-visible');
+                    return;
+                }
+                const verdict = percent > 50 ? 'Çoğunluktasın' : (percent < 50 ? 'Azınlıktasın' : 'Görüşler yarı yarıya');
+                pill.innerHTML = `
+                    <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1M9 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM22 19v-1a4 4 0 0 0-3-3.9M16 4.1a3 3 0 0 1 0 5.8"/></svg>
+                    <span>Aynı kararı verenler <strong>%${percent}</strong> · ${verdict}</span>`;
+                pill.classList.add('is-visible');
+                this.socialPillTimer = setTimeout(() => pill.classList.remove('is-visible'), 2800);
+            },
+
+            hideSocialPill() {
+                clearTimeout(this.socialPillTimer);
+                document.getElementById('socialPill').classList.remove('is-visible');
             },
 
             clearImpactPreview() {
@@ -2573,8 +2784,14 @@
 
                 // Bu seçimin en çok puan verdiği filozof (eşitlikte listede önce gelen)
                 const topPhil = rankPhilosophers(chosenScores)[0];
-                this.history.push({ questionTitle: q.title, label: choice.label, summary: choice.summary, philosopher: topPhil, scores: chosenScores });
+                const side = q.flipped ? (direction === 'left' ? 'right' : 'left') : direction;
+                const crowdPercent = sharedStats.choicePercent(q.id, side);
+                this.history.push({
+                    questionId: q.id, side, crowdPercent,
+                    questionTitle: q.title, label: choice.label, summary: choice.summary, philosopher: topPhil, scores: chosenScores
+                });
                 this.updateMeters();
+                this.showSocialPill(crowdPercent);
 
                 // Kart uçma animasyonu
                 document.getElementById(direction === 'left' ? 'optionLeft' : 'optionRight').classList.add('is-active');
@@ -2608,6 +2825,14 @@
                 const [dominant, secondary] = rankPhilosophers(this.scores, leanings);
                 this.result = { dominant, secondary, shares };
                 this.recordFairVisitorResult(dominant);
+                sharedStats.submit({
+                    version: CONTENT_VERSION,
+                    source: this.deviceSource(),
+                    dominant,
+                    secondary,
+                    shares,
+                    decisions: this.history.map(h => ({ q: String(h.questionId), c: h.side }))
+                }).then(sent => (sent ? sharedStats.refresh() : null)).then(() => this.updateFairStatsUI());
                 this.generateNewCertificateMeta();
                 this.renderResult();
                 this.showScreen('result');
@@ -2693,6 +2918,7 @@
                                 <span class="tag">${escapeHtml(ph.shortName)} · ${escapeHtml(ph.school)}</span>
                             </div>
                             <p class="decision-text"><strong>${escapeHtml(item.label)}</strong>${item.summary ? ` — ${escapeHtml(item.summary)}` : ''}</p>
+                            ${item.crowdPercent === null || item.crowdPercent === undefined ? '' : `<p class="decision-crowd">Fuarda aynı kararı verenler: %${item.crowdPercent}</p>`}
                         </div>`;
                 }).join('');
             },
@@ -3092,21 +3318,30 @@
                 this.updateFairStatsUI();
             },
 
+            // Ortak veritabanına ulaşılabiliyorsa tüm cihazların toplamı, ulaşılamıyorsa bu cihazın sayıları gösterilir
             updateFairStatsUI() {
-                const stats = this.getFairStats();
+                const shared = sharedStats.data;
+                const useShared = !!(shared && Number(shared.games) > 0);
+                const stats = useShared
+                    ? Object.fromEntries(PHILOSOPHER_LIST.map(p => [p.id, Number(shared.dominant && shared.dominant[p.id]) || 0]))
+                    : this.getFairStats();
                 const total = PHILOSOPHER_LIST.reduce((sum, p) => sum + stats[p.id], 0);
                 const shares = total > 0 ? toShares(stats) : Object.fromEntries(PHILOSOPHER_LIST.map(p => [p.id, 0]));
+                const where = useShared ? 'Fuarda' : 'Bu standda';
 
                 document.getElementById('welcomeStats').innerHTML = `
                     <span class="stand-total">
                         <span class="live-dot"></span>
-                        <span>${total > 0 ? `Bu standda <strong>${total}</strong> kişi pusulasını keşfetti` : 'Pusulasını keşfeden ilk ziyaretçi sen ol'}</span>
+                        <span>${total > 0 ? `${where} <strong>${total}</strong> kişi pusulasını keşfetti` : 'Pusulasını keşfeden ilk ziyaretçi sen ol'}</span>
                     </span>
                     <span class="stand-mini">
                         ${PHILOSOPHER_LIST.map(p => `<span style="--c:${p.color}"><i></i>${escapeHtml(p.shortName)} <strong>%${shares[p.id]}</strong></span>`).join('')}
                     </span>`;
 
                 document.getElementById('resultTotalVisitors').textContent = total;
+                document.getElementById('standPanelSub').textContent = useShared
+                    ? 'Tüm cihazlarda (kiosk ve telefonlar) pusulasını tamamlayan ziyaretçilerin baskın filozofları'
+                    : 'Bu cihazda pusulasını tamamlayan ziyaretçilerin baskın filozofları';
                 document.getElementById('fairStatsGrid').innerHTML = PHILOSOPHER_LIST.map(p => `
                     <div class="stand-item" style="--c:${p.color}">
                         <div class="stand-item-top">
@@ -3211,11 +3446,27 @@
              */
             showAdminPanel() {
                 this.renderAdminQuestionList();
+                this.renderSharedStatus();
+                sharedStats.refresh().then(() => this.renderSharedStatus());
                 document.getElementById('adminModal').classList.remove('hidden');
             },
 
             closeAdminModal() {
                 document.getElementById('adminModal').classList.add('hidden');
+            },
+
+            // Stant ekibi için bağlantı durumu: bağlı mı, kaç oyun kayıtlı, gönderilmeyi bekleyen var mı?
+            renderSharedStatus() {
+                const el = document.getElementById('sharedStatusText');
+                if (!sharedStats.enabled) {
+                    el.textContent = 'Kapalı: SHARED_STATS ayarında adres tanımlı değil. Sonuçlar yalnızca bu cihazda tutulur.';
+                    return;
+                }
+                const pending = sharedStats.readQueue().length;
+                const pendingText = pending ? ` · Gönderilmeyi bekleyen: ${pending} oyun` : '';
+                el.textContent = sharedStats.data && !sharedStats.lastError
+                    ? `Bağlı · Bu soru sürümünde (${CONTENT_VERSION}) ${sharedStats.data.games} oyun kayıtlı${pendingText}`
+                    : `Bağlantı yok (${sharedStats.lastError || 'henüz denenmedi'}) · Sonuçlar bu cihazda bekletiliyor${pendingText}`;
             },
 
             renderAdminQuestionList() {
