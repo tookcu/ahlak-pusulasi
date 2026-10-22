@@ -1,0 +1,7 @@
+# Claude Code yerel ayarları
+.claude/
+
+# Windows / OneDrive sistem dosyaları
+Thumbs.db
+desktop.ini
+*.tmp

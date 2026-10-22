@@ -1,0 +1,15 @@
+{
+    "name": "Dijital Ahlak Pusulası",
+    "short_name": "Ahlak Pusulası",
+    "description": "Siber ikilemler karşısında hangi filozof gibi düşündüğünü keşfet: Felsefe × Bilişim etkileşimli etik simülasyonu.",
+    "lang": "tr",
+    "start_url": "./",
+    "scope": "./",
+    "display": "fullscreen",
+    "orientation": "any",
+    "background_color": "#090D17",
+    "theme_color": "#090D17",
+    "icons": [
+        { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    ]
+}
