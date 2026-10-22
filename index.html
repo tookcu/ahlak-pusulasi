@@ -1845,196 +1845,208 @@
         };
 
         const QUESTIONS = [
+          // Kant × Bentham
           {
             id: 1,
-            category: "Otonom Araçlar",
-            title: "Frenleri Patlayan Otonom Araç",
-            scenario: "Kodladığın sürücüsüz aracın frenleri boşaldı. Önündeki yaya geçidinde kurallara uyan 4 yaya var. Aracı kaldırıma kırarsan 4 yayayı kurtaracaksın ama aracın içindeki 1 yolcu hayatını kaybedecek.",
-            leftChoice: {
-              label: "Yolunda Kal (Müdahale Etme)",
-              summary: "Masum bir yolcuyu bilerek ölüme sürmek cinayettir; eylemin kendisi ahlaken yanlıştır.",
-              scores: { kant: 20, bentham: -5, aristoteles: 5, nietzsche: 5 }
-            },
-            rightChoice: {
-              label: "Kaldırıma Kır (4 Kişiyi Kurtar)",
-              summary: "1 can kaybı, 4 can kaybından daha az trajiktir; toplam yaşamı maksimize et.",
-              scores: { kant: -5, bentham: 20, aristoteles: 5, nietzsche: 0 }
-            }
-          },
-          {
-            id: 2,
-            category: "Yapay Zekâ ve Adalet",
-            title: "Suç İşlenmeden Önce Tutuklama",
-            scenario: "Emniyetin yeni yapay zekâsı, vatandaşların mesaj ve konum verilerini tarayarak bir kişinin 24 saat içinde ağır bir suç işleyeceğini %98 doğrulukla tespit etti. Ancak kişi henüz hiçbir suç işlemedi.",
-            leftChoice: {
-              label: "Asla Tutuklama",
-              summary: "Suç işlenmeden ceza verilmez; insanın özgür iradesi ve masumiyet karinesi kutsaldır.",
-              scores: { kant: 15, bentham: -5, aristoteles: 5, nietzsche: 15 }
-            },
-            rightChoice: {
-              label: "Önleyici Gözaltı Yap",
-              summary: "Masum kurbanları korumak ve toplumsal güvenliği sağlamak soyut ilkelerden önemlidir.",
-              scores: { kant: -5, bentham: 20, aristoteles: 5, nietzsche: -5 }
-            }
-          },
-          {
-            id: 3,
-            category: "Akademik Etik",
-            title: "Yapay Zekâ ile Proje Hazırlama",
-            scenario: "Yarın teslim etmen gereken çok önemli bir felsefe makalesi var. Yapay zekâya yazdırırsan kusursuz bir not alacaksın ve kimse anlamayacak; kendin yazarsan orta şeker bir not alacaksın.",
-            leftChoice: {
-              label: "Kendi Emeğinle Yaz",
-              summary: "Önemli olan yüksek not değil, dürüst kalmak ve düşünme erdemini geliştirmektir.",
-              scores: { kant: 15, bentham: 0, aristoteles: 20, nietzsche: 5 }
-            },
-            rightChoice: {
-              label: "Yapay Zekâyı Kullan ve Geliştir",
-              summary: "Eski kurallara takılma; teknolojiyi bir güç çarpanı olarak kullanıp en üst sonuca ulaş.",
-              scores: { kant: -5, bentham: 15, aristoteles: -5, nietzsche: 15 }
-            }
-          },
-          {
-            id: 4,
-            category: "Transhümanizm",
-            title: "Beyne Zekâ Çipi Takılması",
-            scenario: "Hafızayı 10 kat güçlendiren ve öğrenme hızını katlayan bir beyin çipi geliştirildi. Ancak riskleri tam bilinmiyor ve çip taktıranlar diğer insanlara karşı ezici bir üstünlük kuracak.",
-            leftChoice: {
-              label: "Yasakla veya Sınırla",
-              summary: "İnsan doğasının ölçüsünü bozmak ve toplumu biyolojik sınıflara bölmek tehlikelidir.",
-              scores: { kant: 10, bentham: 5, aristoteles: 20, nietzsche: -5 }
-            },
-            rightChoice: {
-              label: "Serbest Bırak (Sınırları Aş)",
-              summary: "İnsan biyolojik sınırlarını aşmalı ve kendi evrimini cesurca eline almalıdır.",
-              scores: { kant: -5, bentham: 5, aristoteles: -5, nietzsche: 20 }
-            }
-          },
-          {
-            id: 5,
-            category: "Veri ve Yas",
-            title: "Dijital Ölümsüzlük (Deepfake)",
-            scenario: "Çok sevdiğin bir yakının vefat etti. Bir şirket, onun eski ses ve mesaj kayıtlarını kullanarak tıpkı onun gibi konuşan bir yapay zekâ ikizi yapmayı teklif ediyor. Ama yakının hayattayken buna izin vermemişti.",
-            leftChoice: {
-              label: "Reddet ve Anısına Saygı Duy",
-              summary: "Ölen birinin rızası olmadan kişiliğini simülasyona dönüştürmek onuruna saygısızlıktır.",
-              scores: { kant: 20, bentham: -5, aristoteles: 15, nietzsche: 0 }
-            },
-            rightChoice: {
-              label: "Kabul Et ve Acıyı Dindir",
-              summary: "Kimseye zararı yoksa ve geride kalan ailesinin acısını hafifletip mutlu edecekse yapılmalıdır.",
-              scores: { kant: -5, bentham: 20, aristoteles: 0, nietzsche: 10 }
-            }
-          },
-          {
-            id: 6,
-            category: "Sosyal Medya Etiği",
-            title: "Bağımlılık Yapan Algoritmalar",
-            scenario: "Gençlerin ekran başında günde 6 saat geçirmesini sağlayan kaydırma (scroll) algoritmaları ruh sağlığını bozuyor. Devlet tüm sosyal medyaya 'günlük 1 saat otomatik kapanma' zorunluluğu getirmek istiyor.",
-            leftChoice: {
-              label: "Kısıtlamaya Karşı Çık",
-              summary: "Kimse bireye ne kadar ekran kullanacağını dikte edemez; irade bireyin kendi sınavıdır.",
-              scores: { kant: 5, bentham: -5, aristoteles: 0, nietzsche: 20 }
-            },
-            rightChoice: {
-              label: "Süre Sınırını Destekle",
-              summary: "Toplumun ruh sağlığını korumak ve ölçülü yaşamı teşvik etmek için düzenleme şarttır.",
-              scores: { kant: 5, bentham: 15, aristoteles: 15, nietzsche: -5 }
-            }
-          },
-          {
-            id: 7,
-            category: "Siber Aktivizm",
-            title: "Siber Robin Hood",
-            scenario: "İlaç fiyatlarını haksız yere 10 katına çıkaran dev bir şirketin sunucularında güvenlik açığı buldun. Sistemi hackleyip ilaç formüllerini ve gizli belgeleri tüm dünyaya ücretsiz dağıtabilirsin.",
-            leftChoice: {
-              label: "Hackleme (Yasal Yoldan Şikâyet Et)",
-              summary: "Amaç ne kadar ulvi olursa olsun, hırsızlık ve yasa dışı siber saldırı evrensel bir kural olamaz.",
-              scores: { kant: 20, bentham: -5, aristoteles: 10, nietzsche: -5 }
-            },
-            rightChoice: {
-              label: "Sistemi Hackle ve Paylaş",
-              summary: "Milyonlarca hastanın hayatı ve mevcut yozlaşmış düzeni yıkmak, şirket kurallarından üstündür.",
-              scores: { kant: -5, bentham: 20, aristoteles: 0, nietzsche: 15 }
-            }
-          },
-          {
-            id: 8,
-            category: "Kriz ve Mahremiyet",
-            title: "Salgın Anında Zorunlu Veri Takibi",
-            scenario: "Tehlikeli bir salgın başladı. Hükümet, herkesin telefonuna konum, nabız ve temas verilerini anlık izleyen bir uygulamayı zorunlu kılmak istiyor. Bu sayede salgın 2 ayda bitecek ama mahremiyet sıfırlanacak.",
-            leftChoice: {
-              label: "Zorunluluğu Reddet",
-              summary: "Korku adına temel insan hakları ve özel hayatın gizliliği kalıcı olarak feda edilemez.",
-              scores: { kant: 15, bentham: -5, aristoteles: 0, nietzsche: 20 }
-            },
-            rightChoice: {
-              label: "Toplum Sağlığı İçin Onayla",
-              summary: "Binlerce insanın hayatını kurtarmak ve krizi bitirmek için geçici mahremiyet kaybı göze alınır.",
-              scores: { kant: -5, bentham: 20, aristoteles: 10, nietzsche: -5 }
-            }
-          },
-          {
-            id: 9,
-            category: "İnsansız Sistemler",
-            title: "Yapay Zekâ Yargıçlar",
-            scenario: "Mahkemelerdeki davaların 5 yıl sürmesini engellemek için hiç yorulmayan, rüşvet yemeyen ve kanunları saniyede uygulayan 'Yapay Zekâ Yargıç' sistemine geçilmesi oylanıyor.",
-            leftChoice: {
-              label: "Adaleti İnsana Bırak",
-              summary: "Adalet sadece soğuk kurallar değil; vicdan, empati ve insani bilgelik (hakkaniyet) gerektirir.",
-              scores: { kant: 10, bentham: -5, aristoteles: 20, nietzsche: 5 }
-            },
-            rightChoice: {
-              label: "Yapay Zekâ Yargıca Geç",
-              summary: "Geciken adalet adalet değildir; hızlı, tarafsız ve maksimum verimli sistem topluma en çok faydayı sağlar.",
-              scores: { kant: 5, bentham: 20, aristoteles: -5, nietzsche: 0 }
-            }
-          },
-          {
-            id: 10,
-            category: "Metaverse ve Sanal Etik",
-            title: "Sanal Dünyada Suç ve Şiddet",
-            scenario: "Tamamen yapay zekâ karakterlerin (NPC) olduğu ultra-gerçekçi bir sanal gerçeklik oyununda, oyuncuların sanal karakterlere işkence ve zorbalık yapması gerçek dünyada hiçbir fiziksel zarar doğurmuyor.",
-            leftChoice: {
-              label: "Sanal Zorbalığı Yasakla",
-              summary: "Zulüm provası yapmak insanın ruhunu ve karakterini çürütür, gerçek dünyadaki erdemini yok eder.",
-              scores: { kant: 15, bentham: 0, aristoteles: 20, nietzsche: -5 }
-            },
-            rightChoice: {
-              label: "Sanal Dünyayı Serbest Bırak",
-              summary: "Gerçek bir kurban yoksa suç da yoktur; sanal alan insanın karanlık dürtülerini zararsızca boşalttığı özgür bir alandır.",
-              scores: { kant: -5, bentham: 10, aristoteles: -5, nietzsche: 20 }
-            }
-          },
-          {
-            id: 11,
-            category: "Algoritmik Rehberlik",
-            title: "Kader Belirleyen Kariyer Yapay Zekâsı",
-            scenario: "Okulundaki yeni yapay zekâ, ilkokuldan beri tüm notlarını, genetiğini ve reflekslerini analiz ederek hangi meslekte %99 başarılı ve mutlu olacağını belirledi. Ancak senin hayalin bambaşka ve riskli bir meslek.",
-            leftChoice: {
-              label: "Kendi Hayalinin Peşinden Git",
-              summary: "Yanılsam bile kendi yolumu kendim seçmeliyim; algoritmanın çizdiği garantili hayat köleliktir.",
-              scores: { kant: 10, bentham: -5, aristoteles: 5, nietzsche: 20 }
-            },
-            rightChoice: {
-              label: "Algoritmanın Seçimine Güven",
-              summary: "Veriye dayalı en yüksek başarı ve toplumsal verimlilik, duygusal heveslerden daha akılcıdır.",
-              scores: { kant: 0, bentham: 20, aristoteles: 5, nietzsche: -5 }
-            }
-          },
-          {
-            id: 12,
             category: "Tıbbi Yapay Zekâ",
             title: "Acil Serviste Algoritmik Triyaj",
-            scenario: "Acil serviste tek bir solunum cihazı kaldı. İlk sırada bekleyen 80 yaşındaki ağır hasta var. Ancak hastane yapay zekâsı, 5 dakika sonra gelen 20 yaşındaki gencin kurtulma ve uzun yaşama ihtimalinin 4 kat yüksek olduğunu hesapladı.",
+            scenario: "Acil serviste tek solunum cihazı kaldı. İlk sırada 80 yaşında ağır bir hasta var. Ancak hastane yapay zekâsı, 5 dakika sonra gelen 20 yaşındaki gencin kurtulma ve uzun yaşama ihtimalinin 4 kat yüksek olduğunu hesapladı.",
             leftChoice: {
               label: "Sıraya ve Eşitliğe Uy (80 Yaş)",
-              summary: "Her insanın yaşam hakkı eşittir; yaş veya kalan ömür hesabıyla insan hayatı tartılamaz.",
-              scores: { kant: 20, bentham: -5, aristoteles: 10, nietzsche: 0 }
+              summary: "Her insanın yaşam hakkı eşittir; yaş veya kalan ömür hesabıyla insan hayatının değeri tartılamaz.",
+              scores: { kant: 20, bentham: -5, aristoteles: 5, nietzsche: 0 }
             },
             rightChoice: {
-              label: "Kurtulma Şansı Yükseğe Ver (20 Yaş)",
-              summary: "Tıbbi kaynaklar kıt olduğunda, kurtarılacak toplam yaşam yılını maksimize etmek en doğru karardır.",
-              scores: { kant: -5, bentham: 20, aristoteles: 5, nietzsche: 10 }
+              label: "Şansı Yüksek Olana Ver (20 Yaş)",
+              summary: "Tıbbi kaynaklar kıt olduğunda, kurtarılacak toplam yaşam süresini ve yaşam gücünü en çoğa çıkarmak gerekir.",
+              scores: { kant: -5, bentham: 20, aristoteles: 0, nietzsche: 5 }
+            }
+          },
+          // Kant × Aristoteles
+          {
+            id: 2,
+            category: "Dijital İletişim Etiği",
+            title: "Dürüst Yapay Zekâ Eleştirmeni",
+            scenario: "Önemli bir sınav öncesi aylarca uğraştığın resmini yapay zekâ koçuna gösterdin. Algoritma çalışmanın zayıf olduğunu tespit etti; ancak şu an çok stresli ve kırılgan olduğunu da biliyor.",
+            leftChoice: {
+              label: "Her Durumda Tam Gerçeği Söyle",
+              summary: "Teselli etmek için bile olsa gerçek eğip bükülmemelidir; açık sözlülük insanın gerçekle yüzleşip güçlenmesini sağlar.",
+              scores: { kant: 20, bentham: 0, aristoteles: -5, nietzsche: 5 }
+            },
+            rightChoice: {
+              label: "Duruma Uygun ve Yapıcı Konuş",
+              summary: "Kırılgan bir anda yıkıcı olmak yerine doğru zamanı ve ölçülü üslubu seçmek, insanın gelişimini ve moralini korur.",
+              scores: { kant: -5, bentham: 5, aristoteles: 20, nietzsche: 0 }
+            }
+          },
+          // Kant × Nietzsche
+          {
+            id: 3,
+            category: "Yapay Zekâ ve Sanat",
+            title: "İzinsiz Eserlerle Eğitilen Model",
+            scenario: "Geliştirdiğin yapay zekâ, tarihte görülmemiş güzellikte özgün müzik ve tablolar üretiyor. Ancak model, binlerce sanatçının internetteki açık eserlerini onlardan tek tek izin almadan analiz ederek öğrendi.",
+            leftChoice: {
+              label: "Rıza Alınmadan Kullanmayı Durdur",
+              summary: "Eser sahiplerinin açık onayı ve emeği, ortaya çıkacak sonuç ne kadar büyüleyici olursa olsun araçsallaştırılamaz.",
+              scores: { kant: 20, bentham: 5, aristoteles: 0, nietzsche: -5 }
+            },
+            rightChoice: {
+              label: "Yaratıcı Dönüşümü Serbest Bırak",
+              summary: "Büyük sanatsal sıçramalar önceki birikimi aşarak doğar; geçmişin kalıpları yeni çağın özgün üretimini durdurmamalıdır.",
+              scores: { kant: -5, bentham: 0, aristoteles: 5, nietzsche: 20 }
+            }
+          },
+          // Bentham × Aristoteles
+          {
+            id: 4,
+            category: "Yapay Zekâ ve Adalet",
+            title: "Mahkemelerde Yapay Zekâ Yargıç",
+            scenario: "Mahkemelerdeki davaların yıllarca sürmesini önlemek için yorulmayan, rüşvet yemeyen ve dosyaları saniyeler içinde karara bağlayan tam otomatik 'Yapay Zekâ Yargıç' sistemine geçilmesi oylanıyor.",
+            leftChoice: {
+              label: "Yapay Zekâ Yargıca Geç",
+              summary: "Geciken adalet adalet değildir; hızlı, tarafsız ve yüksek verimli karar sistemi toplumdaki mağduriyetleri en aza indirir.",
+              scores: { kant: 5, bentham: 20, aristoteles: -5, nietzsche: 0 }
+            },
+            rightChoice: {
+              label: "Adaleti İnsana Bırak",
+              summary: "Yargılama yalnız soğuk hesap değildir; her olayın kendine özgü bağlamını anlamak insani sağduyu ve vicdan gerektirir.",
+              scores: { kant: 0, bentham: -5, aristoteles: 20, nietzsche: 5 }
+            }
+          },
+          // Bentham × Nietzsche
+          {
+            id: 5,
+            category: "Algoritmik Rehberlik",
+            title: "Meslek Seçen Kariyer Yapay Zekâsı",
+            scenario: "Okulundaki yapay zekâ, tüm notlarını ve yeteneklerini analiz ederek hangi meslekte %99 başarılı ve huzurlu olacağını belirledi. Ancak senin gönlünde çok daha riskli ve belirsiz bir hayal var.",
+            leftChoice: {
+              label: "Algoritmanın Seçimine Güven",
+              summary: "Veriye dayalı yüksek başarı, kalıcı huzur ve toplumsal uyum, sonu belirsiz maceralardan çok daha akılcıdır.",
+              scores: { kant: 0, bentham: 20, aristoteles: 5, nietzsche: -5 }
+            },
+            rightChoice: {
+              label: "Kendi Hayalinin Peşinden Git",
+              summary: "Yanılsam bile kendi yolumu kendim seçmeliyim; başkalarının çizdiği garantili ve konforlu rota insanı köreltir.",
+              scores: { kant: 5, bentham: -5, aristoteles: 0, nietzsche: 20 }
+            }
+          },
+          // Aristoteles × Nietzsche
+          {
+            id: 6,
+            category: "İnsan ve Teknoloji",
+            title: "Beyne Zekâ Çipi Takılması",
+            scenario: "Hafızayı 10 kat güçlendiren ve öğrenme hızını katlayan bir beyin çipi geliştirildi. Uzun vadeli etkileri tam bilinmese de çipi taktıranlar normal insanlara karşı büyük bir zihinsel üstünlük kuracak.",
+            leftChoice: {
+              label: "Doğal Dengeyi Koru ve Sınırla",
+              summary: "İnsan doğasının ölçüsünü bozmak ve toplumu biyolojik uçurumlara sürüklemek karakter bütünlüğünü tehlikeye atar.",
+              scores: { kant: 5, bentham: 0, aristoteles: 20, nietzsche: -5 }
+            },
+            rightChoice: {
+              label: "Biyolojik Sınırları Cesurca Aş",
+              summary: "İnsan olduğu yerde saymamalı; teknolojiyi kullanarak kendi kapasitesini ve potansiyelini bir üst aşamaya taşımalıdır.",
+              scores: { kant: 0, bentham: 5, aristoteles: -5, nietzsche: 20 }
+            }
+          },
+          // Kant × Bentham
+          {
+            id: 7,
+            category: "Siber Güvenlik ve Hukuk",
+            title: "Suç İşlenmeden Önce Müdahale",
+            scenario: "Emniyetin yeni yapay zekâsı, mesaj ve konum verilerini tarayarak bir kişinin 24 saat içinde ağır bir suç işleyeceğini %98 olasılıkla hesapladı. Ancak şüpheli henüz hiçbir yasa dışı eylemde bulunmadı.",
+            leftChoice: {
+              label: "Suç İşlenmeden Müdahale Etme",
+              summary: "Henüz gerçekleşmemiş bir eylem için ceza verilemez; insanın özgür iradesi ve masumiyet hakkı olasılıklara feda edilemez.",
+              scores: { kant: 20, bentham: -5, aristoteles: 0, nietzsche: 10 }
+            },
+            rightChoice: {
+              label: "Önleyici Gözaltı Uygula",
+              summary: "Masum insanların zarar görmesini engellemek ve toplumsal huzuru korumak, soyut kuralları beklemekten daha önemlidir.",
+              scores: { kant: -5, bentham: 20, aristoteles: 10, nietzsche: 0 }
+            }
+          },
+          // Kant × Aristoteles
+          {
+            id: 8,
+            category: "Okul ve Siber Kurallar",
+            title: "Şifresini Paylaşan Öğrenci",
+            scenario: "Okulun siber güvenlik botu, hasta arkadaşının ödevini zamanında yükleyebilmesi için ona kendi giriş şifresini veren bir öğrenciyi yakaladı. Yönetmeliğe göre şifre paylaşmanın cezası sistemden 1 ay uzaklaştırmadır.",
+            leftChoice: {
+              label: "Kuralı İstisnasız Uygula",
+              summary: "Kurallar herkes için eşit ve kesin olmalıdır; iyi niyetle bile olsa ayrıcalık tanımak sistemin güvenilirliğini bozar.",
+              scores: { kant: 20, bentham: 10, aristoteles: -5, nietzsche: 0 }
+            },
+            rightChoice: {
+              label: "Niyeti ve Dostluğu Gözet",
+              summary: "Yardımlaşma niyetiyle yapılan bir davranışı bağlamından koparıp katı biçimde cezalandırmak hakkaniyete sığmaz.",
+              scores: { kant: -5, bentham: 0, aristoteles: 20, nietzsche: 10 }
+            }
+          },
+          // Kant × Nietzsche
+          {
+            id: 9,
+            category: "Siber Güvenlik Etiği",
+            title: "İzinsiz Güvenlik Açığı Testi",
+            scenario: "Bir şehir hastanesinin sunucusunda tehlikeli bir güvenlik açığı fark ettin. Resmi izin süreci haftalar sürecek; ancak kendi uzmanlığınla sisteme şimdi izinsiz girip açığı kanıtlayarak hemen kapanmasını sağlayabilirsin.",
+            leftChoice: {
+              label: "Resmi İzin Sürecini Bekle",
+              summary: "Amacın iyi olsa bile başkasının sistemine izinsiz girmek yanlıştır; meşru sınırlar ve kurumsal sorumluluk korunmalıdır.",
+              scores: { kant: 20, bentham: 0, aristoteles: 10, nietzsche: -5 }
+            },
+            rightChoice: {
+              label: "İnisiyatif Al ve Açığı Kanıtla",
+              summary: "Hantal prosedürlere boyun eğmek yerine kendi yeteneğinle harekete geçmek, hem engelleri aşar hem de sistemi kurtarır.",
+              scores: { kant: -5, bentham: 10, aristoteles: 0, nietzsche: 20 }
+            }
+          },
+          // Bentham × Aristoteles
+          {
+            id: 10,
+            category: "Akademik ve Kişisel Gelişim",
+            title: "Her İşi Yapan Yapay Zekâ Asistan",
+            scenario: "Yeni nesil bir yapay zekâ asistanı; kitap özetlerinden proje yazımına kadar tüm zorlu zihinsel görevleri senin yerine saniyeler içinde hatasız tamamlayıp sana bolca boş vakit ve yüksek puan kazandırabiliyor.",
+            leftChoice: {
+              label: "Tam Otomasyonla Hız Kazan",
+              summary: "En az zahmetle en yüksek sonuca ulaşmak ve kazanılan zamanı yeni hedefler için kullanmak teknolojiyi doğru kullanmaktır.",
+              scores: { kant: 0, bentham: 20, aristoteles: -5, nietzsche: 10 }
+            },
+            rightChoice: {
+              label: "Kendi Çabanla Öğrenerek İlerle",
+              summary: "Zihinsel emek ve düzenli alışkanlık olmadan kazanılan başarı kalıcı değildir; insanı geliştiren şey sürecin kendisidir.",
+              scores: { kant: 10, bentham: -5, aristoteles: 20, nietzsche: 0 }
+            }
+          },
+          // Bentham × Nietzsche
+          {
+            id: 11,
+            category: "Dijital Kaynak Yönetimi",
+            title: "Eşit İşlem Gücü ve Enerji Kotası",
+            scenario: "Küresel enerji krizini önlemek için tüm bilgisayar ve sunuculara eşit bir günlük işlem kotası getirilmesi planlanıyor. Bu sayede kesintiler bitecek; ancak büyük ve çığır açıcı projeler geliştirenler yavaşlayacak.",
+            leftChoice: {
+              label: "Herkes İçin Eşit Kotayı Onayla",
+              summary: "Ortak kaynakları adil paylaşmak ve toplumun tamamını kesintilerden korumak, ayrıcalıklı projelerden daha önceliklidir.",
+              scores: { kant: 10, bentham: 20, aristoteles: 0, nietzsche: -5 }
+            },
+            rightChoice: {
+              label: "Öncü Çalışmaları Sınırlandırma",
+              summary: "Herkesi aynı ortalamada eşitleyen tavan sınırlar, insanlığın ufkunu açacak olağanüstü atılımları ve ustalığı boğar.",
+              scores: { kant: 0, bentham: -5, aristoteles: 10, nietzsche: 20 }
+            }
+          },
+          // Aristoteles × Nietzsche
+          {
+            id: 12,
+            category: "Sosyal Medya Etiği",
+            title: "Ekran Süresine Otomatik Sınır",
+            scenario: "Gençleri saatlerce ekrana bağlayan sonsuz kaydırma algoritmaları dikkat dağınıklığını artırıyor. Tüm sosyal medya uygulamalarına 'günlük 1 saat sonunda otomatik kapanma' zorunluluğu getirilmesi tartışılıyor.",
+            leftChoice: {
+              label: "Süre Sınırını Destekle",
+              summary: "Dikkat sömürüsüne karşı koruyucu sınırlar koymak, toplum sağlığını ve dengeli yaşam alışkanlıklarını güçlendirir.",
+              scores: { kant: 0, bentham: 10, aristoteles: 20, nietzsche: -5 }
+            },
+            rightChoice: {
+              label: "Bireysel İradeye Karışma",
+              summary: "Kimseye zamanını nasıl yöneteceği dışarıdan dikte edilemez; insan kendi iradesini dış yasaklarla değil seçimleriyle sınar.",
+              scores: { kant: 10, bentham: 0, aristoteles: -5, nietzsche: 20 }
             }
           }
         ];
