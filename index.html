@@ -863,6 +863,8 @@
         .qr-box { padding: 10px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.7); }
         .qr-box canvas { display: block; width: 150px; height: 150px; image-rendering: pixelated; }
         .qr-box-lg canvas { width: 240px; height: 240px; }
+        /* Basılı tutunca iOS'un "Fotoğraflara Ekle" menüsü çıksın (sayfanın geri kalanında bu menü kapalı) */
+        .cert-image { display: block; width: 100%; height: auto; border-radius: 12px; -webkit-touch-callout: default; user-select: auto; }
         .phone-body { justify-items: center; gap: 14px; text-align: center; }
         .phone-url { font-family: var(--font-display); font-size: 13px; color: var(--text-3); overflow-wrap: anywhere; }
         .phone-cta { min-height: 44px; }
@@ -1310,7 +1312,7 @@
                         </div>
                         <button class="btn btn-secondary" onclick="app.downloadCertificatePNG()">
                             <svg class="i" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
-                            PNG indir
+                            Görseli kaydet
                         </button>
                         <button class="btn btn-secondary" onclick="app.printCertificate()">
                             <svg class="i" viewBox="0 0 24 24"><path d="M7 9V3h10v6M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/><rect x="7" y="14" width="10" height="7" rx="1"/></svg>
@@ -1471,6 +1473,24 @@
         <div class="modal-body phone-body">
             <div class="qr-box qr-box-lg"><canvas id="phoneQrCanvas" width="360" height="360" aria-label="Uygulama bağlantısı QR kodu"></canvas></div>
             <p id="phoneUrlText" class="phone-url"></p>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SERTİFİKA GÖRSELİ (paylaşma desteklenmediğinde) ==================== -->
+<div id="certImageModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="certImageTitle" onclick="if (event.target === this) app.closeCertImage()">
+    <div class="modal-card modal-card-lg">
+        <div class="modal-head">
+            <div>
+                <h3 id="certImageTitle" class="modal-title">Sertifikan</h3>
+                <p class="modal-sub">Görsele parmağınla basılı tut ve "Fotoğraflara Ekle"yi seç</p>
+            </div>
+            <button class="icon-btn" onclick="app.closeCertImage()" aria-label="Kapat">
+                <svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <img id="certImageView" class="cert-image" alt="Dijital Ahlak Pusulası sertifika görseli">
         </div>
     </div>
 </div>
@@ -2770,6 +2790,7 @@
                 this.closePinModal();
                 this.closeAdminModal();
                 this.closePhonePlay();
+                this.closeCertImage();
                 this.hideSocialPill();
                 // Sertifika bağlantısıyla açılmışsa ad ve sonuçları adres çubuğundan da temizle
                 if (window.location.search || window.location.hash) {
@@ -3195,6 +3216,7 @@
                 }
 
                 QRGen.renderToCanvas(canvas, qrPayload, '#0A0E19', '#FFFFFF');
+                this.scheduleCertImage();   // QR (ve ad) değişti: paylaşılacak görseli yeniden hazırla
             },
 
             // Sertifika bağlantısıyla açılış: #cert=24.24.24.28&id=DAP-2026-1234&ad=Ayşe
@@ -3417,17 +3439,64 @@
                 return canvas;
             },
 
-            async downloadCertificatePNG() {
+            // Sertifika görselini arka planda önceden hazırlar. iOS, paylaşmayı/indirmeyi ancak dokunuşla
+            // aynı anda başlatılırsa kabul eder; dokunuştan sonra çizmeye kalkınca işlemi engeller.
+            scheduleCertImage() {
+                clearTimeout(this.certImageTimer);
+                this.certImage = null;
+                const token = (this.certImageToken = (this.certImageToken || 0) + 1);
+                this.certImageTimer = setTimeout(async () => {
+                    if (!this.result) return;
+                    const canvas = await this.buildCertificateCanvas();
+                    canvas.toBlob(blob => {
+                        if (blob && token === this.certImageToken) this.certImage = blob;
+                    }, 'image/png');
+                }, 400);
+            },
+
+            downloadCertificatePNG() {
                 if (!this.result) return;
-                const canvas = await this.buildCertificateCanvas();
+                if (!this.certImage) {
+                    this.showToast('Sertifika görseli hazırlanıyor; bir saniye sonra tekrar dokun.');
+                    return;
+                }
                 const displayName = this.visitorName || 'Bilim Fuarı Ziyaretçisi';
+                const file = new File([this.certImage], `Dijital_Ahlak_Sertifikasi_${displayName.replace(/[^a-zA-Z0-9ğüşöçıİĞÜŞÖÇ]/g, '_')}.png`, { type: 'image/png' });
+
+                // Telefon ve tablet: Paylaş ekranı → "Görüntüyü Kaydet" (fotoğraflara kaydeder)
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    navigator.share({ files: [file], title: 'Dijital Ahlak Pusulası sertifikam' })
+                        .catch(err => { if (err.name !== 'AbortError') this.showCertImage(); });
+                    return;
+                }
+                // Paylaşma yoksa: iPhone/iPad'de görseli göster (basılı tut → Fotoğraflara Ekle), bilgisayarda indir
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+                if (isIOS) {
+                    this.showCertImage();
+                    return;
+                }
+                const url = URL.createObjectURL(this.certImage);
                 const a = document.createElement('a');
-                a.href = canvas.toDataURL('image/png');
-                a.download = `Dijital_Ahlak_Sertifikasi_${displayName.replace(/[^a-zA-Z0-9ğüşöçıİĞÜŞÖÇ]/g, '_')}.png`;
+                a.href = url;
+                a.download = file.name;
                 document.body.appendChild(a);
                 a.click();
-                document.body.removeChild(a);
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 10000);
                 this.showToast('Sertifika PNG olarak indirildi.');
+            },
+
+            showCertImage() {
+                if (!this.certImage) return;
+                const img = document.getElementById('certImageView');
+                if (img.dataset.url) URL.revokeObjectURL(img.dataset.url);
+                img.dataset.url = URL.createObjectURL(this.certImage);
+                img.src = img.dataset.url;
+                document.getElementById('certImageModal').classList.remove('hidden');
+            },
+
+            closeCertImage() {
+                document.getElementById('certImageModal').classList.add('hidden');
             },
 
             printCertificate() {
@@ -3795,7 +3864,7 @@
 
                     const adminOpen = !document.getElementById('adminModal').classList.contains('hidden');
                     if (adminOpen && e.key === 'Escape') this.closeAdminModal();
-                    if (e.key === 'Escape') this.closePhonePlay();
+                    if (e.key === 'Escape') { this.closePhonePlay(); this.closeCertImage(); }
                     if (this.currentScreen !== 'game' || adminOpen) return;
 
                     if (e.key === 'ArrowLeft') {
