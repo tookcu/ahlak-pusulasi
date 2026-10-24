@@ -7,8 +7,8 @@
  *
  * Önbellek yapısı değişirse CACHE adını artırın (dap-v2 …); eski önbellek otomatik silinir.
  */
-const CACHE = 'dap-v1';
-const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
+const CACHE = 'dap-v2';
+const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon.svg', './apple-touch-icon.png'];
 const NETWORK_TIMEOUT_MS = 4000;
 
 self.addEventListener('install', (event) => {

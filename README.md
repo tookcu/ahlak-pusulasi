@@ -22,6 +22,21 @@ pusulasında **Ana Profil** ve **İkincil Yönelim** olarak hangi filozofa yakı
 - **Sertifika QR'ı:** Web sürümünde kişisel sertifika sayfasına bağlanır. Ad ve sonuçlar adresin `#` kısmında
   taşınır; bu kısım sunucuya gönderilmez, sunucuda hiçbir kişisel veri tutulmaz.
 
+## Stantta iPad ile kullanım (9. nesil iPad için denendi)
+
+Uygulama iPad'de **yatay** kullanım için tasarlandı (1080×810); karşılama, 12 kartın tamamı ve sonuç
+ekranı kaydırmadan sığar. Dikey kullanımda oyun sığar ama karşılama ekranı kaydırma ister.
+
+1. **Kurulum (internet varken, bir kez):** Safari'de siteyi aç → Paylaş düğmesi → **Ana Ekrana Ekle**.
+   Ana ekrandaki "Ahlak Pusulası" simgesinden açıldığında tarayıcı çubukları olmadan tam ekran çalışır
+   ve çevrimdışı önbelleğe alınır. Ana ekrandan bir kez açıp bütün ekranları gezmek yeterli.
+2. **Kilitleme:** Ayarlar → Erişilebilirlik → **Rehberli Erişim**'i aç; uygulamadayken yan/üst düğmeye üç kez
+   basıp başlat. Ziyaretçi uygulamadan çıkamaz; ekran yönü de kilitlenebilir (yatay).
+3. **Ekranın kapanmaması:** Ayarlar → Ekran ve Parlaklık → **Otomatik Kilit: Asla**. Şarj kablosu takılı kalsın.
+4. **Ses:** Yan anahtar/ses düzeyi açık olmalı; uygulamadaki ses düğmesiyle efektler kapatılabilir.
+5. **Yönetici PIN'i:** Ana ekrandan açılan uygulama, Safari'den ayrı bir depolama kullanır; PIN değişikliğini
+   ana ekrandaki uygulamanın içinden yapın.
+
 ## Soruları ve filozofları düzenlemek
 
 Tüm içerik `index.html` içindeki **"3. VERİ BÖLÜMÜ"** başlığı altındadır (`PHILOSOPHERS` ve `QUESTIONS`).

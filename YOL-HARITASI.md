@@ -20,7 +20,8 @@ Son durum (23.10.2026 gecesi): Site yayında → https://tookcu.github.io/ahlak-
 - [ ] Supabase → SQL Editor: `truncate public.games cascade;` (deneme kayıtlarını siler)
 - [ ] Supabase'in açık olduğunu kontrol et. `.github/workflows/supabase-canli-tut.yml` 3 günde bir
       sorgu atarak uyutulmayı önler; GitHub → Actions'ta son çalışmaların yeşil olduğuna bak
-- [ ] Kiosk tabletinde siteyi aç → "Uygulamayı yükle" → interneti kesip dene
+- [ ] iPad'de Safari → Paylaş → "Ana Ekrana Ekle"; ana ekrandan açıp interneti (Wi-Fi) kapatarak dene
+- [ ] iPad: Rehberli Erişim (yatay kilit), Otomatik Kilit: Asla, şarj kablosu — ayrıntı README'de
 - [ ] Yönetim panelinden yönetici PIN'ini değiştir (varsayılan kodda görünür)
 - [ ] "Telefonunda oyna" QR'ını afiş olarak bas
 - [ ] Sertifika QR'ını iPhone ve Android telefonlarla okut
