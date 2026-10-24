@@ -9,7 +9,7 @@ Son durum (23.10.2026 gecesi): Site yayında → https://tookcu.github.io/ahlak-
 - [x] Oyun sonunda rozetler (Tutarlı Pusula, Dengeli Gezgin, Dört Yön Kâşifi, İkilemin Ustası, Azınlığın Sesi, Toplumun Nabzı)
 - [x] Sonuç pusulasında fuardaki ziyaretçilerin dağılımı (kesikli çizgi, en az 5 oyun birikince)
 - [ ] Stantta büyük ekran için canlı "fuarın ortak pusulası" sayfası
-- [ ] Tepki cümleleri (`REACTIONS`) ve rozet metinleri (`BADGES`) şu an taslak — felsefe ekibi gözden geçirecek
+- [x] Tepki cümleleri (`REACTIONS`) ve rozet metinleri (`BADGES`) felsefe ekibi (Gemini) tarafından yazıldı
 
 ## 2. Küçük iyileştirmeler
 - [ ] Telefonda en uzun kartta hafif kaydırma (~80 px) — kart ve seçenekler sıkılaştırılabilir

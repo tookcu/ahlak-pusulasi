@@ -2088,40 +2088,48 @@
         ];
 
         // Karar sonrası tepki: seçilen kararın arkasındaki filozof bu cümlelerden birini söyler.
-        // Birebir alıntı değil, filozofun bakışının sade bir özeti (TASLAK — felsefe ekibi değiştirebilir).
+        // Birebir alıntı değil, filozofun bakışının sade bir özeti (felsefe ekibi, Gemini ile).
         const REACTIONS = {
           kant: [
-            "İnsanı asla yalnızca bir araç olarak görme.",
-            "Herkes böyle davransaydı da doğru olur muydu? Senin cevabın evet.",
-            "Sonuç ne olursa olsun, ilkeden şaşmadın."
+            "Hiçbir insanı başka bir hedefin aracı yapmadın, onurunu korudun.",
+            "Herkes senin gibi davransaydı da bu seçim evrensel bir yasa olurdu.",
+            "Fayda sağlasa bile gerçeği eğip bükmedin; dürüstlükten şaşmadın.",
+            "Açık rızayı ve insan iradesini her türlü hesabın üstünde tuttun.",
+            "Sonuç ne getirirse getirsin, doğru niyetten ve ilkeden ayrılmadın."
           ],
           bentham: [
-            "En çok insana en büyük iyiliği tarttın.",
-            "Acıyı azaltıp mutluluğu artıran seçim, iyi seçimdir.",
-            "Niyetlere değil, sonuçlara baktın."
+            "En çok insana en büyük iyiliği sağlayacak yolu tercih ettin.",
+            "Toplamdaki acıyı azaltıp huzur ve mutluluğu çoğaltmayı seçtin.",
+            "Sözlere veya niyetlere değil, kararın ürettiği somut sonuca baktın.",
+            "Kimseye ayrıcalık tanımadın; herkesin payını eşit teraziye koydun.",
+            "Kıt kaynakları en verimli şekilde kullanarak ortak refahı büyüttün."
           ],
           aristoteles: [
-            "Aşırılıklar arasında ölçülü olanı aradın.",
-            "İyi karakter, doğru alışkanlıklarla kurulur.",
-            "Doğru şeyi, doğru zamanda ve doğru ölçüde yapmak bilgeliktir."
+            "İki uç arasında savrulmadın; sağduyulu ve ölçülü olanı buldun.",
+            "Kolaycılığa kaçmadın; sağlam karakter doğru alışkanlıklarla kurulur.",
+            "Kalıplara sıkışmadın; olayın bağlamına uygun bilgece kararı verdin.",
+            "Soğuk kuralların ötesine geçip dostluğu ve insani bağı gözettin.",
+            "Bireyin iyiliğini, içinde yaşadığı toplumun uyumundan ayrı görmedin."
           ],
           nietzsche: [
-            "Hazır kalıpları değil, kendi yolunu seçtin.",
-            "Kalabalıktan ayrılmak cesaret ister.",
-            "Sınırını zorladın; insan aşılması gereken bir şeydir."
+            "Olduğun yerde saymadın; insanın sınırlarını aşma iradesini seçtin.",
+            "Hazır reçeteleri reddettin; kendi özgün değerlerini kendin kurdun.",
+            "Kalabalığın güvenli limanına sığınmadın, bağımsız rotanı çizdin.",
+            "Garantili konfor yerine belirsizlikle yüzleşme cesareti gösterdin.",
+            "Korkuya kapılmadın; yaratıcı gücü ve hayatın coşkusunu onayladın."
           ]
         };
 
         // Oyun sonu rozetleri. Kazanma koşulları koddadır (app.computeBadges); başlık ve açıklamalar
-        // buradan değiştirilebilir (TASLAK).
+        // buradan değiştirilebilir (felsefe ekibi, Gemini ile).
         const BADGES = {
-          tutarli:  { title: "Tutarlı Pusula",   desc: "Ana filozofunun yer aldığı ikilemlerin neredeyse hepsinde onun yanında durdun." },
-          dengeli:  { title: "Dengeli Gezgin",   desc: "Hiçbir filozof öne kaçmadı; dört yönü de dinledin." },
-          kasif:    { title: "Dört Yön Kâşifi",  desc: "Kararların dört filozof arasında eşit dağıldı." },
-          ikilem:   { title: "İkilemin Ustası",  desc: "Ana profilin ile ikincil yönelimin neredeyse başa baş." },
-          azinlik:  { title: "Azınlığın Sesi",   desc: "En az dört kararda fuardaki çoğunluktan ayrıldın." },
-          cogunluk: { title: "Toplumun Nabzı",   desc: "Kararlarının çoğunda fuardaki çoğunlukla aynı yöndeydin." },
-          yolcu:    { title: "Pusula Yolcusu",   desc: "Bütün siber ikilemleri sonuna kadar tamamladın." }
+          tutarli:  { title: "Sarsılmaz Pusula",    desc: "Ana filozofunun yer aldığı ikilemlerin en az %80'inde onun yolunu seçtin." },
+          dengeli:  { title: "Çok Yönlü Bilge",     desc: "Tek bir bakışa hapsolmadın; pusulanın dört yönünü de birbirine yakın tuttun." },
+          kasif:    { title: "Kusursuz Simetri",    desc: "Çok nadir bir denge yakaladın; kararların dört filozof arasında eşit dağıldı." },
+          ikilem:   { title: "İki Yönlü Derinlik",  desc: "İki güçlü felsefi bakışı başa baş taşıdın; ilk iki yönün arasında fark çok az." },
+          azinlik:  { title: "Özgün Rotalar",       desc: "En az dört ikilemde fuardaki genel eğilimden ayrılıp bağımsız bir yol seçtin." },
+          cogunluk: { title: "Ortak Vicdanın Sesi", desc: "Kararlarının üçte ikisinden fazlasında fuardaki ortak sağduyuyla buluştun." },
+          yolcu:    { title: "Siber Etik Öncüsü",   desc: "On iki zorlu siber ikilemin tamamıyla yüzleşip kendi ahlak pusulanı keşfettin." }
         };
 
         /* =====================================================================
