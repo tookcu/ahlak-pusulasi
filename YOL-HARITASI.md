@@ -8,12 +8,12 @@ Son durum (23.10.2026 gecesi): Site yayında → https://tookcu.github.io/ahlak-
 - [x] Her karardan sonra filozof tepki kartı + "aynı kararı verenler" oranı
 - [x] Oyun sonunda rozetler (Tutarlı Pusula, Dengeli Gezgin, Dört Yön Kâşifi, İkilemin Ustası, Azınlığın Sesi, Toplumun Nabzı)
 - [x] Sonuç pusulasında fuardaki ziyaretçilerin dağılımı (kesikli çizgi, en az 5 oyun birikince)
-- [ ] Stantta büyük ekran için canlı "fuarın ortak pusulası" sayfası
+- [~] Stant büyük ekran sayfası — gerek yok (stantta yalnızca iPad var; ziyaretçiler telefonlarından da oynayabilir)
 - [x] Tepki cümleleri (`REACTIONS`) ve rozet metinleri (`BADGES`) felsefe ekibi (Gemini) tarafından yazıldı
 
 ## 2. Küçük iyileştirmeler
-- [ ] Telefonda en uzun kartta hafif kaydırma (~80 px) — kart ve seçenekler sıkılaştırılabilir
-- [ ] Bazı sorulara özel ikon (sanat, enerji kotası şu an genel ikon alıyor)
+- [x] Telefonda oyun ekranı kaydırmasız sığıyor (390×660, Safari çubukları açıkken); yalnızca iPhone SE boyutunda ~34 px kaydırma
+- [x] Sanat, enerji kotası ve iletişim sorularına özel ikon
 - [ ] İsteğe bağlı: commit e-postasını GitHub "noreply" adresine çevirmek
 
 ## 3. Fuardan önce mutlaka (prova listesi)
