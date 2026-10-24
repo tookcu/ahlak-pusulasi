@@ -39,8 +39,9 @@ ekranı kaydırmadan sığar. Dikey kullanımda oyun sığar ama karşılama ekr
 
 ## Soruları ve filozofları düzenlemek
 
-Tüm içerik `index.html` içindeki **"3. VERİ BÖLÜMÜ"** başlığı altındadır (`PHILOSOPHERS` ve `QUESTIONS`).
-Biçim o bölümün açıklamasında anlatılır; filozof sayısı sabit değildir, arayüz veriden üretilir.
+Tüm içerik **`veri.js`** dosyasındadır (`PHILOSOPHERS`, `QUESTIONS`, `REACTIONS`, `BADGES`); biçim
+dosyanın başında anlatılır. Değiştirdikten sonra **`kontrol.html`**'i açın: yazım hatası, metin uzunlukları
+ve puan dengesini denetler. Adım adım anlatım ve yıllık döngü için: **[DEVIR-TESLIM.md](DEVIR-TESLIM.md)**.
 
 Puanlama: her filozof 20 puanla başlar, puanlar her karardan sonra 5–250 arasında tutulur, yüzdeler toplam
 100 olacak şekilde hesaplanır. Eşitlikte kararların daha çoğu hangi filozofa yöneldiyse o öne geçer.
@@ -54,8 +55,14 @@ Panelden yapılan soru ve istatistik değişiklikleri yalnızca o cihazın taray
 
 | Dosya | Görev |
 |---|---|
-| `index.html` | Uygulamanın tamamı (stiller, gömülü yazı tipleri, veri ve kod) |
+| `index.html` | Uygulama (stiller, gömülü yazı tipleri ve kod) |
+| `veri.js` | İçerik: filozoflar, sorular, tepki cümleleri, rozet metinleri |
+| `kontrol.html` | İçerik denetimi: yazım hatası, uzunluk ve puan dengesi |
+| `DEVIR-TESLIM.md` | Sonraki ekipler için rehber (felsefe ve bilişim ekibi) |
+| `AGENTS.md`, `CLAUDE.md` | Yapay zekâ kod araçları için proje kuralları |
 | `sw.js` | Çevrimdışı önbellek (yalnızca web sürümünde çalışır) |
-| `manifest.webmanifest`, `icon.svg` | Kurulabilir uygulama (PWA) bilgileri ve simgesi |
+| `manifest.webmanifest`, `icon.svg`, `apple-touch-icon.png` | Kurulabilir uygulama (PWA) bilgileri ve simgeleri |
+| `supabase/schema.sql` | Ortak istatistik veritabanı |
+| `gemini-*-istemi.md` | Yapay zekâya içerik ürettirmek için hazır istemler |
 
 Yazı tipleri: Inter, Space Grotesk, Cinzel (SIL Open Font License 1.1).

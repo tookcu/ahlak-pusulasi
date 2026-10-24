@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İçerik Kontrolü | Dijital Ahlak Pusulası</title>
+    <!--
+        veri.js için denetim sayfası. Dosyaya çift tıklayarak açılır; internet gerekmez.
+        Denetler: yazım hataları, eksik alanlar, metin uzunlukları ve puan dengesi.
+        Puanlama kuralları index.html'deki SCORING ve rankPhilosophers ile aynıdır;
+        orada değişirse burada da güncelleyin.
+    -->
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #090D17; --surface: #121A2C; --surface-2: #182136; --line: rgba(226, 232, 245, 0.1);
+            --text: #EEF2F8; --text-2: #B3BDD0; --text-3: #7D88A1;
+            --ok: #5CCB9A; --warn: #F2C35E; --err: #F58A8A; --brand: #DDB262;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif; }
+        main { max-width: 1040px; margin: 0 auto; padding: 32px 20px 64px; }
+        h1 { margin: 0 0 4px; font-size: 26px; }
+        h2 { margin: 0 0 4px; font-size: 18px; }
+        p { margin: 0; }
+        .sub { color: var(--text-3); font-size: 13.5px; }
+        section { margin-top: 20px; padding: 20px 22px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); }
+        .verdict { display: flex; gap: 14px; align-items: center; margin-top: 20px; padding: 18px 22px; border-radius: 18px; border: 1px solid; }
+        .verdict strong { display: block; font-size: 18px; }
+        .verdict.ok { border-color: rgba(92, 203, 154, 0.45); background: rgba(92, 203, 154, 0.08); }
+        .verdict.warn { border-color: rgba(242, 195, 94, 0.45); background: rgba(242, 195, 94, 0.08); }
+        .verdict.err { border-color: rgba(245, 138, 138, 0.5); background: rgba(245, 138, 138, 0.08); }
+        .dot { flex: none; width: 14px; height: 14px; border-radius: 50%; }
+        .ok .dot, .dot.ok { background: var(--ok); }
+        .warn .dot, .dot.warn { background: var(--warn); }
+        .err .dot, .dot.err { background: var(--err); }
+        ul.issues { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 8px; }
+        ul.issues li { display: flex; gap: 10px; align-items: baseline; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); }
+        ul.issues li .dot { width: 10px; height: 10px; transform: translateY(1px); }
+        ul.issues .where { color: var(--text-3); font-size: 12.5px; white-space: nowrap; }
+        table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 13.5px; }
+        th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+        th { color: var(--text-3); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+        td.num { text-align: right; font-variant-numeric: tabular-nums; }
+        .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; }
+        .bar { height: 8px; border-radius: 99px; background: rgba(255, 255, 255, 0.08); overflow: hidden; min-width: 120px; }
+        .bar i { display: block; height: 100%; border-radius: inherit; }
+        .tag { display: inline-block; padding: 1px 8px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+        .tag.ok { color: var(--ok); background: rgba(92, 203, 154, 0.12); }
+        .tag.warn { color: var(--warn); background: rgba(242, 195, 94, 0.12); }
+        .tag.err { color: var(--err); background: rgba(245, 138, 138, 0.12); }
+        .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        code, pre { font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
+        pre { margin: 12px 0 0; padding: 12px 14px; border-radius: 12px; background: #0B101D; overflow-x: auto; color: var(--text-2); }
+        pre .bad { color: var(--err); font-weight: 700; }
+        button, .file { display: inline-block; margin-top: 12px; padding: 10px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); color: var(--text); font: inherit; cursor: pointer; }
+        .muted { color: var(--text-3); }
+    </style>
+</head>
+<body>
+<main>
+    <h1>İçerik Kontrolü</h1>
+    <p class="sub">Dijital Ahlak Pusulası · <code>veri.js</code> denetimi: yazım hataları, eksik alanlar, metin uzunlukları ve puan dengesi</p>
+    <div id="out"></div>
+</main>
+
+<script>
+    // veri.js'teki bir yazım hatası bu sayfayı durdurmasın; hata yakalanıp gösterilir
+    window.__veriLoadError = null;
+    window.addEventListener('error', e => { if (!window.__veriLoadError) window.__veriLoadError = { message: e.message, line: e.lineno }; });
+</script>
+<script src="veri.js"></script>
+<script>
+    /* ---------- Kurallar (index.html ile aynı) ---------- */
+    const RULES = { base: 20, min: 5, max: 250, strong: 15, owner: 20 };
+    const LIMITS = { title: 40, category: 30, scenario: 230, label: 35, summary: 125, reaction: 70, badgeTitle: 22, badgeDesc: 80 };
+    const BADGE_IDS = ['tutarli', 'dengeli', 'kasif', 'ikilem', 'azinlik', 'cogunluk', 'yolcu'];
+    const DIRECTIONS = ['KUZEY', 'KUZEYDOĞU', 'DOĞU', 'GÜNEYDOĞU', 'GÜNEY', 'GÜNEYBATI', 'BATI', 'KUZEYBATI'];
+    const ICONS = ['car', 'eye', 'lock', 'shield', 'network', 'mask', 'cap', 'heart', 'chip', 'vr', 'speech', 'scale', 'spark', 'compass', 'palette', 'bolt'];
+
+    const out = document.getElementById('out');
+    const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+    const issues = [];
+    const add = (level, where, text) => issues.push({ level, where, text });
+
+    /* ---------- Yazım hatası: hatalı satırı bul ---------- */
+    // Metin sayfaya satır içi bir betik olarak eklenir; tarayıcı yazım hatasını satır numarasıyla bildirir.
+    // Metin { … } bloğuna sarılır ki tanımlar sayfayı etkilemesin (bu yüzden satır numarasından 1 düşülür).
+    function locateSyntaxError(text) {
+        const lines = text.split('\n');
+        let found = null;
+        const onError = e => {
+            const message = String(e.message || '').replace(/^.*?Node': /, '').replace(/^Uncaught /, '');
+            found = { line: Math.max(1, (e.lineno || 1) - 1), message };
+            e.preventDefault();
+        };
+        window.addEventListener('error', onError);
+        const script = document.createElement('script');
+        script.textContent = '{\n' + text + '\n}';
+        document.head.appendChild(script);
+        script.remove();
+        window.removeEventListener('error', onError);
+        return found && /SyntaxError|Unexpected|Invalid|missing|expected/i.test(found.message) ? { ...found, lines } : null;
+    }
+
+    function showLoadError(text) {
+        let html = `<div class="verdict err"><span class="dot"></span><div><strong>veri.js okunamadı</strong>
+            <p>Dosya bulunamadı ya da içinde bir yazım hatası var. Uygulama bu hâliyle açılmaz.</p></div></div>`;
+        const found = text ? locateSyntaxError(text) : null;
+        if (found) {
+            const from = Math.max(0, found.line - 4), to = Math.min(found.lines.length, found.line + 2);
+            const snippet = found.lines.slice(from, to).map((l, i) => {
+                const no = from + i + 1;
+                return no === found.line ? `<span class="bad">${String(no).padStart(4)} ▶ ${esc(l)}</span>` : `${String(no).padStart(4)}   ${esc(l)}`;
+            }).join('\n');
+            html += `<section><h2>Hata ${found.line}. satırda ya da hemen öncesinde</h2>
+                <p class="sub">Tarayıcının mesajı: ${esc(found.message)}</p><pre>${snippet}</pre>
+                <p class="sub" style="margin-top:12px">En sık sebepler: bir önceki satırın sonunda unutulmuş virgül, kapatılmamış tırnak (")
+                ya da metnin içinde kullanılmış çift tırnak (onun yerine ' kullanın), eksik } veya ].</p></section>`;
+        } else {
+            html += `<section><h2>Hatanın yerini bulmak için</h2>
+                <p class="sub">Bu sayfa dosyadan açıldığında tarayıcı veri.js'i okumama izin vermiyor. Aşağıdan veri.js dosyasını seçin;
+                hatalı satırı gösteririm.</p>
+                <label class="file">veri.js dosyasını seç <input id="pick" type="file" accept=".js" hidden></label></section>`;
+        }
+        out.innerHTML = html;
+        const pick = document.getElementById('pick');
+        if (pick) pick.addEventListener('change', () => {
+            const f = pick.files[0];
+            if (f) f.text().then(showLoadError);
+        });
+    }
+
+    /* ---------- Veriyi uygulamanın kullandığı biçime çevir (index.html ile aynı) ---------- */
+    function normalize() {
+        const list = (Array.isArray(PHILOSOPHERS) ? PHILOSOPHERS : Object.values(PHILOSOPHERS)).map(p => {
+            const dir = String(p.direction || '');
+            const point = dir.split('(')[0].trim().toLocaleUpperCase('tr');
+            const shortName = p.shortName || String(p.name || '').trim().split(/\s+/).pop();
+            return { ...p, shortName, point, school: p.school || (dir.match(/\(([^)]+)\)/) || [])[1] || '' };
+        });
+        const choice = (c, t, s) => (c ? { label: c.label || '', summary: c.summary || '', scores: c.scores || {} } : { label: t || '', summary: '', scores: s || {} });
+        const qs = QUESTIONS.map(q => ({ ...q, left: choice(q.leftChoice, q.leftText, q.leftScores), right: choice(q.rightChoice, q.rightText, q.rightScores) }));
+        return { list, qs };
+    }
+
+    function rank(values, tieBreak, ids) {
+        return ids.map((id, i) => ({ id, v: values[id] || 0, t: tieBreak[id] || 0, i }))
+            .sort((a, b) => b.v - a.v || b.t - a.t || a.i - b.i).map(o => o.id);
+    }
+
+    /* ---------- Denetimler ---------- */
+    function run() {
+        const { list, qs } = normalize();
+        const ids = list.map(p => p.id);
+        const nameOf = id => (list.find(p => p.id === id) || {}).shortName || id;
+        const colorOf = id => (list.find(p => p.id === id) || {}).color || '#888';
+
+        // Filozoflar
+        if (list.length < 2) add('err', 'Filozoflar', 'En az iki filozof gerekli.');
+        const seen = new Set();
+        list.forEach(p => {
+            const w = `Filozof "${p.id || '?'}"`;
+            if (!p.id || !/^[a-zçğıöşü0-9_-]+$/.test(p.id)) add('err', w, 'id küçük harf ve boşluksuz olmalı.');
+            if (seen.has(p.id)) add('err', w, 'Aynı id iki kez kullanılmış.');
+            seen.add(p.id);
+            ['name', 'title', 'motto', 'desc'].forEach(f => { if (!p[f]) add('err', w, `"${f}" alanı boş.`); });
+            if (p.direction && !DIRECTIONS.includes(p.point)) add('warn', w, `Yön "${p.point}" tanınmadı; geçerli yönler: ${DIRECTIONS.join(', ')}.`);
+            if (!/^#[0-9a-fA-F]{6}$/.test(p.color || '')) add('warn', w, 'color #RRGGBB biçiminde olmalı (ör. "#38bdf8").');
+        });
+        const points = list.map(p => p.point).filter(Boolean);
+        if (new Set(points).size !== points.length) add('err', 'Filozoflar', 'İki filozof pusulada aynı yöne yerleştirilmiş.');
+
+        // Sorular
+        if (qs.length < 4) add('err', 'Sorular', 'En az 4 soru gerekli.');
+        const qIds = new Set();
+        const owners = {}; ids.forEach(id => owners[id] = 0);
+        const pairs = {};
+        qs.forEach(q => {
+            const w = `Soru ${q.id ?? '?'}`;
+            if (q.id === undefined) add('err', w, 'id eksik.');
+            if (qIds.has(String(q.id))) add('err', w, 'Aynı id iki soruda kullanılmış.');
+            qIds.add(String(q.id));
+            ['category', 'title', 'scenario'].forEach(f => {
+                if (!q[f]) add('err', w, `"${f}" alanı boş.`);
+                else if (q[f].length > LIMITS[f]) add('warn', w, `${f} ${q[f].length} karakter (önerilen en fazla ${LIMITS[f]}); kiosk ekranına sığmayabilir.`);
+            });
+            if (q.icon && !ICONS.includes(q.icon)) add('warn', w, `icon "${q.icon}" tanınmadı.`);
+            const tops = [];
+            [['Sol', q.left], ['Sağ', q.right]].forEach(([side, c]) => {
+                if (!c.label) add('err', w, `${side} seçeneğin label alanı boş.`);
+                else if (c.label.length > LIMITS.label) add('warn', w, `${side} label ${c.label.length} karakter (önerilen en fazla ${LIMITS.label}).`);
+                if (c.summary && c.summary.length > LIMITS.summary) add('warn', w, `${side} summary ${c.summary.length} karakter (önerilen en fazla ${LIMITS.summary}).`);
+                Object.keys(c.scores).forEach(k => { if (!ids.includes(k)) add('err', w, `${side} seçenekte bilinmeyen filozof: "${k}".`); });
+                Object.entries(c.scores).forEach(([k, v]) => { if (typeof v !== 'number') add('err', w, `${side} seçenekte ${k} puanı sayı değil.`); });
+                const strong = ids.filter(id => (c.scores[id] || 0) >= RULES.strong);
+                if (strong.length !== 1) add('warn', w, `${side} seçeneğin tek bir "sahibi" olmalı (+${RULES.owner}); şu an +${RULES.strong} ve üstü alan ${strong.length} filozof var.`);
+                else if (c.scores[strong[0]] !== RULES.owner) add('warn', w, `${side} seçeneğin sahibi ${nameOf(strong[0])} +${RULES.owner} yerine ${c.scores[strong[0]]} alıyor.`);
+                if (strong.length === 1) owners[strong[0]]++;
+                tops.push(strong.length === 1 ? strong[0] : null);
+            });
+            if (tops[0] && tops[1]) {
+                if (tops[0] === tops[1]) add('warn', w, `İki seçeneğin sahibi de ${nameOf(tops[0])}; bir ikilem iki farklı bakışı karşılaştırmalı.`);
+                else { const k = [tops[0], tops[1]].sort().join('|'); pairs[k] = (pairs[k] || 0) + 1; }
+            }
+            q._tops = tops;
+        });
+
+        // Tepkiler ve rozetler
+        ids.forEach(id => {
+            const lines = REACTIONS[id];
+            if (!Array.isArray(lines) || !lines.length) add('warn', 'Tepkiler', `${nameOf(id)} için tepki cümlesi yok.`);
+            else {
+                if (lines.length < 3) add('warn', 'Tepkiler', `${nameOf(id)} için yalnızca ${lines.length} cümle var (en az 3–5 önerilir; aynı cümle sık tekrarlanır).`);
+                lines.forEach(l => { if (l.length > LIMITS.reaction) add('warn', 'Tepkiler', `${nameOf(id)}: "${l.slice(0, 40)}…" ${l.length} karakter (en fazla ${LIMITS.reaction}).`); });
+            }
+        });
+        Object.keys(REACTIONS).forEach(k => { if (!ids.includes(k)) add('warn', 'Tepkiler', `Bilinmeyen filozof için tepki tanımlanmış: "${k}".`); });
+        BADGE_IDS.forEach(id => {
+            const b = BADGES[id];
+            if (!b || !b.title) add('err', 'Rozetler', `"${id}" rozeti eksik (kimlikler değiştirilmemeli: ${BADGE_IDS.join(', ')}).`);
+            else {
+                if (b.title.length > LIMITS.badgeTitle) add('warn', 'Rozetler', `"${b.title}" başlığı ${b.title.length} karakter (en fazla ${LIMITS.badgeTitle}).`);
+                if ((b.desc || '').length > LIMITS.badgeDesc) add('warn', 'Rozetler', `"${b.title}" açıklaması ${b.desc.length} karakter (en fazla ${LIMITS.badgeDesc}).`);
+            }
+        });
+
+        // Denge: olası tüm cevap kombinasyonları (soru çoksa rastgele 100.000 oyun)
+        const N = qs.length;
+        const exhaustive = N <= 16;
+        const total = exhaustive ? (1 << N) : 100000;
+        const primary = {}; ids.forEach(id => primary[id] = 0);
+        for (let g = 0; g < total; g++) {
+            const sc = {}, lean = {};
+            ids.forEach(id => { sc[id] = RULES.base; lean[id] = 0; });
+            qs.forEach((q, i) => {
+                const right = exhaustive ? (g >> i) & 1 : Math.random() < 0.5;
+                const c = right ? q.right : q.left;
+                ids.forEach(id => { sc[id] = Math.min(RULES.max, Math.max(RULES.min, sc[id] + (c.scores[id] || 0))); });
+                lean[rank(c.scores, {}, ids)[0]]++;
+            });
+            primary[rank(sc, lean, ids)[0]]++;
+        }
+        const share = id => (primary[id] / total) * 100;
+        const target = 100 / ids.length;
+        ids.forEach(id => {
+            const s = share(id);
+            if (Math.abs(s - target) > 5) add('warn', 'Denge', `${nameOf(id)} oyuncuların %${s.toFixed(1)}'inde ana profil çıkıyor (hedef ~%${target.toFixed(0)} ± 5).`);
+        });
+        const reach = {}; ids.forEach(id => reach[id] = RULES.base + qs.reduce((s, q) => s + Math.max(q.left.scores[id] || 0, q.right.scores[id] || 0), 0));
+        const reachSpread = Math.max(...Object.values(reach)) - Math.min(...Object.values(reach));
+        if (reachSpread > 20) add('warn', 'Denge', `Ulaşılabilir en yüksek puanlar arasında ${reachSpread} puan fark var (en fazla 20 önerilir).`);
+        const ownVals = ids.map(id => owners[id]);
+        if (Math.max(...ownVals) - Math.min(...ownVals) > 1) add('warn', 'Denge', 'Filozofların sahip olduğu seçenek sayıları eşit değil.');
+        const pairList = [];
+        ids.forEach((a, i) => ids.slice(i + 1).forEach(b => pairList.push([a, b, pairs[[a, b].sort().join('|')] || 0])));
+        const pc = pairList.map(p => p[2]);
+        if (Math.max(...pc) - Math.min(...pc) > 1) add('warn', 'Denge', 'Bazı filozof çiftleri diğerlerinden daha az karşılaşıyor (tablo aşağıda).');
+
+        render({ list, qs, ids, nameOf, colorOf, share, target, reach, owners, pairList, total, exhaustive });
+    }
+
+    /* ---------- Rapor ---------- */
+    function render(d) {
+        const errs = issues.filter(i => i.level === 'err').length;
+        const warns = issues.filter(i => i.level === 'warn').length;
+        const verdict = errs ? ['err', 'Düzeltilmesi gereken hatalar var', `${errs} hata, ${warns} uyarı. Hatalar düzelmeden yayınlamayın.`]
+            : warns ? ['warn', 'Çalışır, ama gözden geçirin', `${warns} uyarı var. Uygulama açılır; uyarılar denge ya da ekrana sığma ile ilgili.`]
+            : ['ok', 'Yayına hazır', 'Hata ve uyarı yok: yapı, uzunluklar ve denge ölçütlerin hepsi tutuyor.'];
+        const levelTag = l => (l === 'err' ? 'err' : 'warn');
+
+        out.innerHTML = `
+            <div class="verdict ${verdict[0]}"><span class="dot"></span><div><strong>${verdict[1]}</strong><p>${verdict[2]}</p></div></div>
+            ${issues.length ? `<section><h2>Bulgular</h2><ul class="issues">${issues.map(i =>
+                `<li><span class="dot ${levelTag(i.level)}"></span><span class="where">${esc(i.where)}</span><span>${esc(i.text)}</span></li>`).join('')}</ul></section>` : ''}
+
+            <section>
+                <h2>Denge</h2>
+                <p class="sub">${d.exhaustive ? `Olası ${d.total.toLocaleString('tr')} cevap kombinasyonunun tamamı` : `${d.total.toLocaleString('tr')} rastgele oyun`} hesaplandı.
+                    Hedef: her filozof ~%${d.target.toFixed(0)} oranında ana profil.</p>
+                <table><thead><tr><th>Filozof</th><th>Ana profil oranı</th><th></th><th class="num">En yüksek puan</th><th class="num">Sahip olduğu seçenek</th></tr></thead><tbody>
+                ${d.ids.map(id => {
+                    const s = d.share(id), ok = Math.abs(s - d.target) <= 5;
+                    return `<tr><td><span class="swatch" style="background:${esc(d.colorOf(id))}"></span>${esc(d.nameOf(id))}</td>
+                        <td class="num"><span class="tag ${ok ? 'ok' : 'warn'}">%${s.toFixed(1)}</span></td>
+                        <td style="width:40%"><div class="bar"><i style="width:${Math.min(100, s * 2)}%;background:${esc(d.colorOf(id))}"></i></div></td>
+                        <td class="num">${d.reach[id]}</td><td class="num">${d.owners[id]}</td></tr>`;
+                }).join('')}
+                </tbody></table>
+                <div class="grid2" style="margin-top:18px">
+                    <div><h2 style="font-size:15px">Çift karşılaşmaları</h2><p class="sub">Her çift eşit sayıda soruda karşı karşıya gelmeli.</p>
+                        <table><tbody>${d.pairList.map(([a, b, n]) => `<tr><td>${esc(d.nameOf(a))} × ${esc(d.nameOf(b))}</td><td class="num">${n} soru</td></tr>`).join('')}</tbody></table></div>
+                    <div><h2 style="font-size:15px">Filozoflar</h2><p class="sub">Pusuladaki yerleri ve tepki cümlesi sayıları.</p>
+                        <table><tbody>${d.list.map(p => `<tr><td><span class="swatch" style="background:${esc(p.color || '#888')}"></span>${esc(p.name || p.id)}</td>
+                            <td>${esc(p.point || 'eşit aralık')}</td><td class="num">${(REACTIONS[p.id] || []).length} tepki</td></tr>`).join('')}</tbody></table></div>
+                </div>
+            </section>
+
+            <section>
+                <h2>Sorular (${d.qs.length})</h2>
+                <p class="sub">Her sorunun iki seçeneğinin "sahibi" (+20 alan filozof).</p>
+                <table><thead><tr><th>#</th><th>Başlık</th><th>Sol seçenek</th><th>Sağ seçenek</th></tr></thead><tbody>
+                ${d.qs.map(q => `<tr><td>${esc(q.id)}</td><td>${esc(q.title || '')}<div class="muted" style="font-size:12px">${esc(q.category || '')}</div></td>
+                    ${q._tops.map((t, i) => `<td>${t ? `<span class="swatch" style="background:${esc(d.colorOf(t))}"></span>${esc(d.nameOf(t))}` : '<span class="tag warn">belirsiz</span>'}
+                        <div class="muted" style="font-size:12px">${esc((i ? q.right : q.left).label)}</div></td>`).join('')}</tr>`).join('')}
+                </tbody></table>
+            </section>
+            <p class="sub" style="margin-top:20px">Uzunluk sınırları kiosk (iPad yatay) ve telefon ekranında denenmiş değerlerdir; aşan metinler çalışır ama ekrana sığmayabilir.</p>`;
+    }
+
+    /* ---------- Başlat ---------- */
+    const loaded = typeof PHILOSOPHERS !== 'undefined' && typeof QUESTIONS !== 'undefined'
+        && typeof REACTIONS !== 'undefined' && typeof BADGES !== 'undefined';
+    if (loaded) {
+        run();
+    } else {
+        // Web'den (http/https) açıldıysa dosyayı okuyup hatalı satırı bul; dosyadan açıldıysa seçtir
+        fetch('veri.js', { cache: 'no-store' }).then(r => (r.ok ? r.text() : null)).catch(() => null).then(showLoadError);
+    }
+</script>
+</body>
+</html>

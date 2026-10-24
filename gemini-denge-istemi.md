@@ -1,8 +1,12 @@
 <!--
-    EKİP İÇİN NOT: Bu dosyanın tamamını (bu not hariç) Gemini'ye yapıştırın.
-    Gemini'nin verdiği QUESTIONS bloğunu Claude'a iletin; Claude dengeyi 4096 kombinasyonla
-    yeniden ölçüp uygulamaya ekleyecek. Sorular değişince istatistik otomatik olarak yeni
-    sürüm olarak ayrı tutulur.
+    EKİP İÇİN NOT: Bu istem 2026'da ilk (dengesiz) soru setini düzeltmek için yazıldı; aşağıdaki
+    "Sorun (ölçüldü)" bölümü ve "Mevcut sorular" o setin verileridir. Yeniden kullanırken:
+      1. "Sorun (ölçüldü)" bölümünü kontrol.html'in gösterdiği güncel sayılarla değiştirin
+         (ya da yeni sorular yazdırıyorsanız bu bölümü silin).
+      2. "Mevcut sorular" bölümüne veri.js'teki güncel QUESTIONS bloğunu yapıştırın.
+      3. Dosyanın tamamını (bu not hariç) Gemini'ye verin; gelen QUESTIONS bloğunu veri.js'e
+         yapıştırıp kontrol.html'de yeşil olduğunu doğrulayın (bkz. DEVIR-TESLIM.md).
+    Sorular değişince ortak istatistik otomatik olarak yeni sürüm olarak ayrı tutulur.
 -->
 
 Sen bir etik felsefesi uzmanı ve oyun tasarımcısısın. "Dijital Ahlak Pusulası" adlı lise bilim fuarı oyunu için hazırladığın 12 soruluk `QUESTIONS` dizisini **puan dengesi** açısından düzeltmeni istiyorum. Filozof tanımları (`PHILOSOPHERS`) değişmeyecek.

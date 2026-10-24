@@ -1,7 +1,8 @@
 <!--
     EKİP İÇİN NOT: Bu dosyanın tamamını (bu not hariç) Gemini'ye yapıştırın.
-    Gemini'nin verdiği REACTIONS ve BADGES bloklarını Claude'a iletin; Claude uzunlukları ve
-    biçimi kontrol edip uygulamaya ekleyecek.
+    Yeniden kullanırken "Mevcut taslaklar" bölümüne veri.js'teki güncel REACTIONS ve BADGES
+    bloklarını yapıştırın. Gelen blokları veri.js'e koyup kontrol.html'de uzunlukların yeşil
+    olduğunu doğrulayın (bkz. DEVIR-TESLIM.md).
 -->
 
 Sen bir etik felsefesi uzmanı ve oyun metni yazarısın. "Dijital Ahlak Pusulası" adlı lise bilim fuarı oyunu için iki kısa metin setini yeniden yazmanı istiyorum. Taslakları bir yazılımcı yazdı; felsefi doğruluk ve dil açısından senin elinden geçmeleri gerekiyor.
