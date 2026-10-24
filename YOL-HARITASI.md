@@ -18,7 +18,8 @@ Son durum (23.10.2026 gecesi): Site yayında → https://tookcu.github.io/ahlak-
 
 ## 3. Fuardan önce mutlaka (prova listesi)
 - [ ] Supabase → SQL Editor: `truncate public.games cascade;` (deneme kayıtlarını siler)
-- [ ] Supabase projesinin uyutulmadığını kontrol et (7 gün kullanılmazsa duraklar)
+- [ ] Supabase'in açık olduğunu kontrol et. `.github/workflows/supabase-canli-tut.yml` 3 günde bir
+      sorgu atarak uyutulmayı önler; GitHub → Actions'ta son çalışmaların yeşil olduğuna bak
 - [ ] Kiosk tabletinde siteyi aç → "Uygulamayı yükle" → interneti kesip dene
 - [ ] Yönetim panelinden yönetici PIN'ini değiştir (varsayılan kodda görünür)
 - [ ] "Telefonunda oyna" QR'ını afiş olarak bas

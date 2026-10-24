@@ -1,0 +1,49 @@
+# Supabase'in ücretsiz projesi 7 gün hiç sorgu almazsa uyutulur. Bu iş akışı fuara (Mayıs) kadar
+# 3 günde bir veritabanına gerçek bir sorgu gönderir. Sorgu başarısız olursa iş kırmızıya düşer ve
+# GitHub depo sahibine e-posta atar (proje uyutulduysa Supabase panelinden "Restore" ile açılır).
+#
+# GitHub, 60 gün hiç commit olmayan herkese açık depolarda zamanlanmış işleri kendiliğinden kapatır.
+# Bunu önlemek için ayın 1'inde .github/nabiz.txt dosyasına tarih yazılıp commit'lenir.
+#
+# Elle çalıştırmak için: GitHub → Actions → "Supabase'i canlı tut" → Run workflow
+
+name: Supabase'i canlı tut
+
+on:
+  schedule:
+    - cron: '17 6 */3 * *'   # ayın 1, 4, 7 … günleri 06:17 UTC (iki çalışma arası en fazla 4 gün)
+    - cron: '41 7 1 * *'     # her ayın 1'i: depo nabzı
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  veritabani-sorgusu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: get_stats ile veritabanını sorgula
+        env:
+          # index.html içindeki SHARED_STATS ile aynı; bu anahtar zaten herkese açık olacak şekilde tasarlanmıştır
+          SUPABASE_URL: https://ujsixenkmskagvktloim.supabase.co
+          SUPABASE_KEY: sb_publishable_oDWkvvruE--IFVVu-cVq-w_SD_kN3rM
+        run: |
+          curl --fail-with-body --silent --show-error --retry 3 --retry-delay 20 \
+            -X POST "$SUPABASE_URL/rest/v1/rpc/get_stats" \
+            -H "apikey: $SUPABASE_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{"p_version":"canli-tutma"}'
+
+  depo-nabzi:
+    if: github.event.schedule == '41 7 1 * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Nabız dosyasını güncelle ve commit'le
+        run: |
+          date -u '+%Y-%m-%d %H:%M UTC' > .github/nabiz.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/nabiz.txt
+          git commit -m 'Depo nabzı (zamanlanmış işler açık kalsın)' || exit 0
+          git push
