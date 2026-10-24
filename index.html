@@ -751,31 +751,62 @@
         .decision-text strong { color: var(--text); font-weight: 600; }
         .decision-crowd { margin-top: 8px; font-size: 12.5px; font-weight: 600; color: var(--brand-2); }
 
-        /* Ortak istatistik: karar sonrası "aynı kararı verenler" etiketi (kartın üstünde, yer kaplamaz) */
+        /* Karar sonrası geri bildirim: kararın arkasındaki filozofun tepkisi + aynı kararı verenlerin oranı.
+           Kartın üst (görsel) kısmının üzerinde durur, düzende yer kaplamaz. */
         .social-pill {
             position: absolute;
-            top: -20px;
+            top: -18px;
             left: 50%;
             z-index: 5;
-            display: inline-flex;
+            width: max-content;
+            max-width: min(460px, 94%);
+            display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 8px 14px;
-            border-radius: 999px;
-            background: rgba(18, 26, 44, 0.94);
-            border: 1px solid rgba(221, 178, 98, 0.5);
-            box-shadow: 0 12px 30px -12px rgba(0, 0, 0, 0.75);
-            font-size: 13px;
-            color: var(--text-2);
-            white-space: nowrap;
+            gap: 12px;
+            padding: 10px 16px 10px 10px;
+            border-radius: 18px;
+            background: rgba(18, 26, 44, 0.96);
+            border: 1px solid color-mix(in srgb, var(--c, var(--brand)) 55%, transparent);
+            box-shadow: 0 16px 36px -14px rgba(0, 0, 0, 0.8);
             pointer-events: none;
             opacity: 0;
             transform: translate(-50%, -6px);
             transition: opacity 0.25s, transform 0.3s var(--ease-out);
         }
-        .social-pill svg { width: 16px; height: 16px; color: var(--brand-2); }
-        .social-pill strong { font-family: var(--font-display); font-size: 15px; color: var(--brand-2); }
+        .social-pill .medallion { width: 40px; height: 40px; }
         .social-pill.is-visible { opacity: 1; transform: translate(-50%, 0); }
+        .pill-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .pill-who { font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--c, var(--brand-2)); }
+        .pill-quote { font-size: 14px; font-weight: 500; line-height: 1.35; color: var(--text); }
+        .pill-crowd { font-size: 12.5px; color: var(--text-2); }
+        .pill-crowd strong { font-family: var(--font-display); color: var(--brand-2); }
+
+        /* Oyun sonu rozetleri */
+        .badge-section { margin-bottom: 28px; }
+        .badge-list { display: grid; gap: 10px; margin-top: 16px; }
+        .badge {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 14px;
+            border-radius: var(--r-lg);
+            background: linear-gradient(90deg, rgba(221, 178, 98, 0.10), rgba(221, 178, 98, 0.02));
+            border: 1px solid rgba(221, 178, 98, 0.3);
+            animation: badge-in 0.5s var(--ease-out) both;
+        }
+        .badge:nth-child(2) { animation-delay: 0.12s; }
+        .badge:nth-child(3) { animation-delay: 0.24s; }
+        .badge-icon { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: var(--brand-ink); background: linear-gradient(180deg, var(--brand-2), var(--brand)); box-shadow: 0 0 0 4px var(--brand-soft); }
+        .badge-icon svg { width: 20px; height: 20px; stroke-width: 2; }
+        .badge-title { display: block; font-family: var(--font-display); font-weight: 700; font-size: 15px; }
+        .badge-desc { display: block; font-size: 12.5px; color: var(--text-2); line-height: 1.4; }
+        @keyframes badge-in { from { opacity: 0; transform: translateY(8px) scale(0.97); } }
+
+        /* Sonuç pusulasında fuar ortalaması açıklaması */
+        .compass-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; margin-top: -10px; font-size: 12px; color: var(--text-3); }
+        .compass-legend span { display: inline-flex; align-items: center; gap: 6px; }
+        .compass-legend i { width: 18px; height: 0; border-top: 2px solid #E8ECF4; }
+        .compass-legend i.is-fair { border-top: 2px dashed var(--brand); }
         .empty-note { font-size: 13.5px; color: var(--text-3); padding: 16px; border: 1px dashed var(--line-2); border-radius: var(--r-lg); }
 
         /* Sertifika */
@@ -1184,6 +1215,7 @@
             <div id="resultHero" class="panel result-hero">
                 <div class="result-compass">
                     <div id="resultCompass" class="compass compass-result"></div>
+                    <div id="compassLegend" class="compass-legend hidden"></div>
                     <div id="resultBars" class="share-bars"></div>
                 </div>
                 <div class="result-copy">
@@ -1215,6 +1247,10 @@
 
             <div class="result-grid">
                 <div class="panel panel-pad">
+                    <div id="badgeSection" class="badge-section hidden">
+                        <h3 class="panel-title">Rozetlerin</h3>
+                        <div id="badgeList" class="badge-list"></div>
+                    </div>
                     <h3 class="panel-title">Kararlarından seçmeler</h3>
                     <p class="panel-sub">Profilini en çok belirleyen yanıtların</p>
                     <div id="decisionHighlightsContainer" class="decision-list"></div>
@@ -2051,6 +2087,43 @@
           }
         ];
 
+        // Karar sonrası tepki: seçilen kararın arkasındaki filozof bu cümlelerden birini söyler.
+        // Birebir alıntı değil, filozofun bakışının sade bir özeti (TASLAK — felsefe ekibi değiştirebilir).
+        const REACTIONS = {
+          kant: [
+            "İnsanı asla yalnızca bir araç olarak görme.",
+            "Herkes böyle davransaydı da doğru olur muydu? Senin cevabın evet.",
+            "Sonuç ne olursa olsun, ilkeden şaşmadın."
+          ],
+          bentham: [
+            "En çok insana en büyük iyiliği tarttın.",
+            "Acıyı azaltıp mutluluğu artıran seçim, iyi seçimdir.",
+            "Niyetlere değil, sonuçlara baktın."
+          ],
+          aristoteles: [
+            "Aşırılıklar arasında ölçülü olanı aradın.",
+            "İyi karakter, doğru alışkanlıklarla kurulur.",
+            "Doğru şeyi, doğru zamanda ve doğru ölçüde yapmak bilgeliktir."
+          ],
+          nietzsche: [
+            "Hazır kalıpları değil, kendi yolunu seçtin.",
+            "Kalabalıktan ayrılmak cesaret ister.",
+            "Sınırını zorladın; insan aşılması gereken bir şeydir."
+          ]
+        };
+
+        // Oyun sonu rozetleri. Kazanma koşulları koddadır (app.computeBadges); başlık ve açıklamalar
+        // buradan değiştirilebilir (TASLAK).
+        const BADGES = {
+          tutarli:  { title: "Tutarlı Pusula",   desc: "Ana filozofunun yer aldığı ikilemlerin neredeyse hepsinde onun yanında durdun." },
+          dengeli:  { title: "Dengeli Gezgin",   desc: "Hiçbir filozof öne kaçmadı; dört yönü de dinledin." },
+          kasif:    { title: "Dört Yön Kâşifi",  desc: "Kararların dört filozof arasında eşit dağıldı." },
+          ikilem:   { title: "İkilemin Ustası",  desc: "Ana profilin ile ikincil yönelimin neredeyse başa baş." },
+          azinlik:  { title: "Azınlığın Sesi",   desc: "En az dört kararda fuardaki çoğunluktan ayrıldın." },
+          cogunluk: { title: "Toplumun Nabzı",   desc: "Kararlarının çoğunda fuardaki çoğunlukla aynı yöndeydin." },
+          yolcu:    { title: "Pusula Yolcusu",   desc: "Bütün siber ikilemleri sonuna kadar tamamladın." }
+        };
+
         /* =====================================================================
            4. KIOSK AYARLARI VE YARDIMCILAR
            ===================================================================== */
@@ -2370,7 +2443,8 @@
              * Pusula SVG'si. Filozoflar kadranda kendi yönlerinde (KUZEY, DOĞU…) durur.
              * shares verilirse içine radar şekli ve yüzde etiketleri çizilir.
              */
-            compass({ idPrefix, shares = null, needleDeg = null }) {
+            // overlay: karşılaştırma için kesikli çizilen ikinci şekil (fuardaki baskın profillerin dağılımı)
+            compass({ idPrefix, shares = null, needleDeg = null, overlay = null }) {
                 const C = 200, R = 124, MED = 179;
                 const f = (n) => n.toFixed(1);
                 const pt = (r, a) => [C + r * Math.cos(a), C + r * Math.sin(a)];
@@ -2402,10 +2476,15 @@
                 }).join('');
 
                 let radar = '';
+                if (overlay) {
+                    const omax = Math.max(1, ...PHILOSOPHER_LIST.map(p => overlay[p.id] || 0));
+                    const opts = PHILOSOPHER_LIST.map((p, i) => pt(R * Math.max(0.1, (overlay[p.id] || 0) / omax), this.axisAngle(i)));
+                    radar += `<polygon class="compass-radar" points="${opts.map(v => v.map(f).join(',')).join(' ')}" fill="#DDB262" fill-opacity="0.06" stroke="#DDB262" stroke-opacity="0.9" stroke-width="1.8" stroke-dasharray="6 5" stroke-linejoin="round"/>`;
+                }
                 if (shares) {
                     const max = Math.max(1, ...PHILOSOPHER_LIST.map(p => shares[p.id]));
                     const vertices = PHILOSOPHER_LIST.map((p, i) => pt(R * Math.max(0.1, shares[p.id] / max), this.axisAngle(i)));
-                    radar = `<g class="compass-radar">
+                    radar += `<g class="compass-radar">
                         <polygon points="${vertices.map(v => v.map(f).join(',')).join(' ')}" fill="#E8ECF4" fill-opacity="0.09" stroke="#E8ECF4" stroke-opacity="0.85" stroke-width="2" stroke-linejoin="round"/>
                         ${vertices.map((v, i) => `<circle cx="${f(v[0])}" cy="${f(v[1])}" r="4.5" fill="${PHILOSOPHER_LIST[i].color}" stroke="#0D1220" stroke-width="2"/>`).join('')}
                     </g>`;
@@ -2721,20 +2800,34 @@
                 document.getElementById('optionRight').classList.toggle('is-active', direction === 'right');
             },
 
-            // Karar sonrası kısa geri bildirim: bu kararı daha önce verenlerin oranı (yeterli veri yoksa gösterilmez)
-            showSocialPill(percent) {
+            // Karar sonrası kısa geri bildirim: kararın arkasındaki filozofun tepkisi ve (yeterli veri varsa)
+            // bu kararı daha önce verenlerin oranı
+            showSocialPill(philId, percent) {
                 const pill = document.getElementById('socialPill');
                 clearTimeout(this.socialPillTimer);
-                if (percent === null || percent === undefined) {
+                const p = philById(philId);
+                const lines = REACTIONS[p.id] || [];
+                // Aynı filozofun aynı cümlesi art arda gelmesin
+                this.lastReaction = this.lastReaction || {};
+                let idx = lines.length ? Math.floor(Math.random() * lines.length) : -1;
+                if (lines.length > 1 && idx === this.lastReaction[p.id]) idx = (idx + 1) % lines.length;
+                this.lastReaction[p.id] = idx;
+                const quote = idx >= 0 ? lines[idx] : '';
+                const hasCrowd = percent !== null && percent !== undefined;
+                if (!quote && !hasCrowd) {
                     pill.classList.remove('is-visible');
                     return;
                 }
                 const verdict = percent > 50 ? 'Çoğunluktasın' : (percent < 50 ? 'Azınlıktasın' : 'Görüşler yarı yarıya');
+                pill.style.setProperty('--c', p.color);
                 pill.innerHTML = `
-                    <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1M9 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM22 19v-1a4 4 0 0 0-3-3.9M16 4.1a3 3 0 0 1 0 5.8"/></svg>
-                    <span>Aynı kararı verenler <strong>%${percent}</strong> · ${verdict}</span>`;
+                    ${UI.medallion(p)}
+                    <span class="pill-body">
+                        ${quote ? `<span class="pill-who">${escapeHtml(p.shortName)} bu kararın arkasında</span><span class="pill-quote">“${escapeHtml(quote)}”</span>` : ''}
+                        ${hasCrowd ? `<span class="pill-crowd">Aynı kararı verenler <strong>%${percent}</strong> · ${verdict}</span>` : ''}
+                    </span>`;
                 pill.classList.add('is-visible');
-                this.socialPillTimer = setTimeout(() => pill.classList.remove('is-visible'), 2800);
+                this.socialPillTimer = setTimeout(() => pill.classList.remove('is-visible'), 3200);
             },
 
             hideSocialPill() {
@@ -2803,7 +2896,7 @@
                     questionTitle: q.title, label: choice.label, summary: choice.summary, philosopher: topPhil, scores: chosenScores
                 });
                 this.updateMeters();
-                this.showSocialPill(crowdPercent);
+                this.showSocialPill(topPhil, crowdPercent);
 
                 // Kart uçma animasyonu
                 document.getElementById(direction === 'left' ? 'optionLeft' : 'optionRight').classList.add('is-active');
@@ -2836,6 +2929,7 @@
                 this.history.forEach(h => { leanings[h.philosopher] = (leanings[h.philosopher] || 0) + 1; });
                 const [dominant, secondary] = rankPhilosophers(this.scores, leanings);
                 this.result = { dominant, secondary, shares };
+                this.result.badges = this.computeBadges(leanings);
                 this.recordFairVisitorResult(dominant);
                 sharedStats.submit({
                     version: CONTENT_VERSION,
@@ -2892,7 +2986,15 @@
 
                 // İğne önce bir tur döner, sonra sonucun yönüne oturur
                 const target = UI.needleAngle(this.result);
-                document.getElementById('resultCompass').innerHTML = UI.compass({ idPrefix: 'rc', shares, needleDeg: target - 400 });
+                // Yeterli ortak veri varsa fuardaki ziyaretçilerin baskın profil dağılımı kesikli çizgiyle eklenir
+                const fair = sharedStats.data;
+                const overlay = fair && Number(fair.games) >= SHARED_STATS.minSampleForComparison
+                    ? toShares(Object.fromEntries(PHILOSOPHER_LIST.map(ph => [ph.id, Number(fair.dominant && fair.dominant[ph.id]) || 0])))
+                    : null;
+                document.getElementById('resultCompass').innerHTML = UI.compass({ idPrefix: 'rc', shares, needleDeg: target - 400, overlay });
+                const legend = document.getElementById('compassLegend');
+                legend.classList.toggle('hidden', !overlay);
+                legend.innerHTML = overlay ? `<span><i></i>Senin pusulan</span><span><i class="is-fair"></i>Fuardaki ziyaretçiler (${fair.games} kişi)</span>` : '';
                 requestAnimationFrame(() => requestAnimationFrame(() => {
                     const needle = document.querySelector('#resultCompass .compass-needle');
                     if (needle) needle.style.transform = `rotate(${target}deg)`;
@@ -2904,11 +3006,45 @@
                 document.getElementById('standPanel').classList.toggle('hidden', shared);
                 document.getElementById('newVisitorLabel').textContent = shared ? 'Sen de oyna' : 'Yeni ziyaretçi';
 
+                this.renderBadges();
                 this.renderDecisionHighlights();
                 this.updateCertificateUI();
             },
 
             // Baskın filozofa en çok puan kazandıran (en fazla 3) kararı, oyun sırasıyla gösterir
+            // Oynanışa göre kazanılan rozetler (en fazla 3). leanings: kaç kararın hangi filozofa yöneldiği.
+            computeBadges(leanings) {
+                const { dominant, secondary, shares } = this.result;
+                const n = this.history.length;
+                const crowd = this.history.map(h => h.crowdPercent).filter(v => v !== null && v !== undefined);
+                const earned = [];
+                // Bir filozofa en fazla, onun sahibi olduğu seçenek sayısı kadar yönelinebilir (dengeli
+                // havuzda 12 sorunun 6'sı); eşik bu üst sınıra göre hesaplanır.
+                const reachable = this.deck.filter(q => [q.left, q.right].some(c => rankPhilosophers(c.scores)[0] === dominant)).length;
+                if (reachable && (leanings[dominant] || 0) >= Math.ceil(reachable * 0.8)) earned.push('tutarli');
+                if (Math.max(...PHILOSOPHER_LIST.map(p => shares[p.id])) <= 32) earned.push('dengeli');
+                if (PHILOSOPHER_LIST.every(p => (leanings[p.id] || 0) >= Math.floor(n / PHILOSOPHER_LIST.length))) earned.push('kasif');
+                if (secondary && shares[dominant] - shares[secondary] <= 3) earned.push('ikilem');
+                if (crowd.filter(v => v < 50).length >= 4) earned.push('azinlik');
+                else if (crowd.length >= 6 && crowd.filter(v => v > 50).length >= Math.ceil((crowd.length * 2) / 3)) earned.push('cogunluk');
+                // Herkes en az bir rozetle ayrılsın
+                if (!earned.length) earned.push('yolcu');
+                return earned.slice(0, 3);
+            },
+
+            renderBadges() {
+                const badges = this.result.badges || [];
+                document.getElementById('badgeSection').classList.toggle('hidden', !badges.length);
+                document.getElementById('badgeList').innerHTML = badges.map(id => {
+                    const b = BADGES[id] || { title: id, desc: '' };
+                    return `
+                        <div class="badge">
+                            <span class="badge-icon"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="M8.5 13.9L7 22l5-3 5 3-1.5-8.1"/></svg></span>
+                            <span><span class="badge-title">${escapeHtml(b.title)}</span><span class="badge-desc">${escapeHtml(b.desc)}</span></span>
+                        </div>`;
+                }).join('');
+            },
+
             renderDecisionHighlights() {
                 const container = document.getElementById('decisionHighlightsContainer');
                 if (!this.history.length) {

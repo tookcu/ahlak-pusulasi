@@ -5,11 +5,11 @@ Son durum (23.10.2026 gecesi): Site yayında → https://tookcu.github.io/ahlak-
 çevrimdışı önbellek ve Supabase ortak canlı istatistik çalışıyor ve test edildi.
 
 ## 1. Oyunlaştırma (sıradaki iş)
-- [ ] Her karardan sonra kısa filozof tepki kartı ("Kant burada şöyle derdi…")
-- [ ] Oyun sonunda rozetler (ör. "Tutarlı Kantçı", "Dengeli Gezgin", "Azınlığın Sesi")
-- [ ] Kendi pusulanı fuar ortalamasıyla karşılaştırma (sonuç ekranında ikinci iğne)
+- [x] Her karardan sonra filozof tepki kartı + "aynı kararı verenler" oranı
+- [x] Oyun sonunda rozetler (Tutarlı Pusula, Dengeli Gezgin, Dört Yön Kâşifi, İkilemin Ustası, Azınlığın Sesi, Toplumun Nabzı)
+- [x] Sonuç pusulasında fuardaki ziyaretçilerin dağılımı (kesikli çizgi, en az 5 oyun birikince)
 - [ ] Stantta büyük ekran için canlı "fuarın ortak pusulası" sayfası
-- Tepki cümleleri ve rozet adları için felsefe ekibine (Gemini) içerik istemi hazırlanacak
+- [ ] Tepki cümleleri (`REACTIONS`) ve rozet metinleri (`BADGES`) şu an taslak — felsefe ekibi gözden geçirecek
 
 ## 2. Küçük iyileştirmeler
 - [ ] Telefonda en uzun kartta hafif kaydırma (~80 px) — kart ve seçenekler sıkılaştırılabilir
